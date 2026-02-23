@@ -1,0 +1,17 @@
+.footer-icons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.footer-icons a {
+  font-size: 22px;
+  color: var(--text);
+  transition: 0.3s;
+}
+
+.footer-icons a:hover {
+  color: var(--accent);
+  transform: translateY(-3px);
+}

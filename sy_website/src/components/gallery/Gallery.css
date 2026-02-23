@@ -1,0 +1,24 @@
+.gallery-grid {
+  column-count: 3;
+  column-gap: 18px;
+}
+
+.gallery-grid img {
+  width: 100%;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  transition: transform .4s, opacity .4s;
+}
+
+.gallery-grid img:hover {
+  transform: scale(1.03);
+  opacity: .85;
+}
+
+@media (max-width: 900px) {
+  .gallery-grid { column-count: 2; }
+}
+
+@media (max-width: 600px) {
+  .gallery-grid { column-count: 1; }
+}

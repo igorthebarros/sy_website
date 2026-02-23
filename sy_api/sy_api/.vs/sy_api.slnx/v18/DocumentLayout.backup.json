@@ -1,0 +1,88 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Trampos Ig\\sy_portfolio\\sy_api\\sy_api\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{734D2EC7-694F-1627-A7CC-A5933DE93D51}|MetaAPI\\MetaAPI.csproj|d:\\trampos ig\\sy_portfolio\\sy_api\\sy_api\\metaapi\\controllers\\metacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{734D2EC7-694F-1627-A7CC-A5933DE93D51}|MetaAPI\\MetaAPI.csproj|solutionrelative:metaapi\\controllers\\metacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{734D2EC7-694F-1627-A7CC-A5933DE93D51}|MetaAPI\\MetaAPI.csproj|d:\\trampos ig\\sy_portfolio\\sy_api\\sy_api\\metaapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{734D2EC7-694F-1627-A7CC-A5933DE93D51}|MetaAPI\\MetaAPI.csproj|solutionrelative:metaapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{42737738-62FB-F696-8A56-AE8D9DF3B8EC}|MetaRepository\\MetaRepository.csproj|d:\\trampos ig\\sy_portfolio\\sy_api\\sy_api\\metarepository\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{42737738-62FB-F696-8A56-AE8D9DF3B8EC}|MetaRepository\\MetaRepository.csproj|solutionrelative:metarepository\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58BF0EA8-ADA7-8C78-E0E6-86C9BA5BAFFB}|MetaService\\MetaService.csproj|d:\\trampos ig\\sy_portfolio\\sy_api\\sy_api\\metaservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58BF0EA8-ADA7-8C78-E0E6-86C9BA5BAFFB}|MetaService\\MetaService.csproj|solutionrelative:metaservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Trampos Ig\\sy_portfolio\\sy_api\\sy_api\\MetaAPI\\Program.cs",
+              "RelativeDocumentMoniker": "MetaAPI\\Program.cs",
+              "ToolTip": "D:\\Trampos Ig\\sy_portfolio\\sy_api\\sy_api\\MetaAPI\\Program.cs",
+              "RelativeToolTip": "MetaAPI\\Program.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAABYAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-22T22:08:53.104Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MetaController.cs",
+              "DocumentMoniker": "D:\\Trampos Ig\\sy_portfolio\\sy_api\\sy_api\\MetaAPI\\Controllers\\MetaController.cs",
+              "RelativeDocumentMoniker": "MetaAPI\\Controllers\\MetaController.cs",
+              "ToolTip": "D:\\Trampos Ig\\sy_portfolio\\sy_api\\sy_api\\MetaAPI\\Controllers\\MetaController.cs",
+              "RelativeToolTip": "MetaAPI\\Controllers\\MetaController.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAQwCoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-22T18:44:38.363Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Trampos Ig\\sy_portfolio\\sy_api\\sy_api\\MetaService\\Program.cs",
+              "RelativeDocumentMoniker": "MetaService\\Program.cs",
+              "ToolTip": "D:\\Trampos Ig\\sy_portfolio\\sy_api\\sy_api\\MetaService\\Program.cs",
+              "RelativeToolTip": "MetaService\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-22T16:51:45.197Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Trampos Ig\\sy_portfolio\\sy_api\\sy_api\\MetaRepository\\Program.cs",
+              "RelativeDocumentMoniker": "MetaRepository\\Program.cs",
+              "ToolTip": "D:\\Trampos Ig\\sy_portfolio\\sy_api\\sy_api\\MetaRepository\\Program.cs",
+              "RelativeToolTip": "MetaRepository\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-22T16:51:41.807Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

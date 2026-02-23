@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="MetaAPI/MetaAPI.csproj" />
+  <Project Path="MetaService/MetaService.csproj" />
+  <Project Path="MetaRepository/MetaRepository.csproj" />
+</Solution>
