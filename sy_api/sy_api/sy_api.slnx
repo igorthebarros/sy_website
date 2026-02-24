@@ -1,5 +1,8 @@
 <Solution>
-  <Project Path="MetaAPI/MetaAPI.csproj" />
-  <Project Path="MetaService/MetaService.csproj" />
-  <Project Path="MetaRepository/MetaRepository.csproj" />
+  <Folder Name="/Itens de Solução/">
+    <File Path=".gitignore" />
+  </Folder>
+  <Project Path="InstagramAPI/InstagramAPI.csproj" />
+  <Project Path="InstagramInfrastructure/InstagramInfrastructure.csproj" />
+  <Project Path="InstagramService/InstagramService.csproj" />
 </Solution>
