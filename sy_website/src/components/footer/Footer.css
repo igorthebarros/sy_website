@@ -1,17 +1,47 @@
 .footer-icons {
-  margin-top: 15px;
+  margin-top: 8px;
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 28px;
 }
 
 .footer-icons a {
-  font-size: 22px;
+  font-size: 28px;
   color: var(--text);
-  transition: 0.3s;
+  transition: transform 0.18s ease, color 0.18s ease, background 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.04);
 }
 
 .footer-icons a:hover {
   color: var(--accent);
-  transform: translateY(-3px);
+  transform: translateY(-4px) scale(1.03);
+  background: rgba(0,0,0,0.06);
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 12px 8px;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.footer-copy {
+  font-size: 13px;
+  margin: 0;
+  padding-top: 6px;
+  text-align: center;
+  color: var(--muted, rgba(0,0,0,0.6));
 }

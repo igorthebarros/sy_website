@@ -8,12 +8,12 @@ export default function Navbar() {
       initial={{ y: -80 }}
       animate={{ y: 0 }}
     >
-      <h2 className="gold">Syella Pinheiro</h2>
+      <h2 className="gold brand"></h2>
 
       <div className="nav-links">
-        <a href="#gallery">Gallery</a>
-        <a href="#about">About</a>
-        <a href="#contact">Contact</a>
+        <a href="#about">Sobre mim</a>
+        <a href="#gallery">Projetos</a>
+        <a href="#contact">Contato</a>
       </div>
     </motion.nav>
   );

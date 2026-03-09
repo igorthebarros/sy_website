@@ -4,10 +4,9 @@ import "./Footer.css";
 export default function Footer() {
   return (
     <footer className="footer">
-      <p className="opacity-70"> © {new Date().getFullYear()} SY Photography </p>
       <div className="footer-icons">
         <a
-          href="https://instagram.com/yourwife"
+          href="https://instagram.com/syellapinheiro.co"
           target="_blank"
           rel="noreferrer"
         >
@@ -15,17 +14,18 @@ export default function Footer() {
         </a>
 
         <a
-          href="https://wa.me/5511999999999"
+          href="https://wa.me/5541988258888"
           target="_blank"
           rel="noreferrer"
         >
           <FaWhatsapp />
         </a>
 
-        <a href="mailto:email@email.com">
+        <a href="mailto:syellapinheiro@gmail.com">
           <FaEnvelope />
         </a>
       </div>
+      <p className="footer-copy opacity-70">© {new Date().getFullYear()} Syella Pinheiro Co.</p>
     </footer>
   );
 }

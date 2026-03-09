@@ -6,7 +6,7 @@ export default function Hero() {
     <section
       className="hero"
       style={{
-        backgroundImage: "url('/hero.jpg')",
+        backgroundImage: "url('/sponge.png')",
       }}
     >
       <motion.div
@@ -15,8 +15,8 @@ export default function Hero() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1.2 }}
       >
-        <h1 className="text-6xl mb-6">Capturing Moments</h1>
-        <p className="text-lg opacity-80">Wedding • Portrait • Lifestyle</p>
+        <h1 className="hero-title">Syella Pinheiro</h1>
+        <p className="hero-subtitle">Casamentos • Aniversários • Infantil</p>
       </motion.div>
     </section>
   );

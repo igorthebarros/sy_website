@@ -1,7 +1,5 @@
 import './App.css'
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import Home from "./pages/Home";
 import Navbar from "./components/navbar/Navbar";
 import Footer from './components/footer/Footer';
 import Hero from './components/hero/Hero';
@@ -14,14 +12,9 @@ export default function App() {
     <>
       <Navbar />
       <Hero />
-      <Gallery />
       <About />
+      <Gallery />
       <Footer />
-      {/* <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </BrowserRouter> */}
     </>
   );
 }

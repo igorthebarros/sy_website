@@ -1,8 +1,41 @@
+/* ================================
+   GALLERY SECTION
+================================ */
+.section {
+  padding: 80px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.gold {
+  font-family: "Playfair Display", serif;
+  font-size: 2.4rem;
+  margin-bottom: 40px;
+  color: #d4af37;
+  letter-spacing: 1px;
+}
+
+.center {
+  text-align: center;
+  color: #bbb;
+}
+
+.error {
+  color: #ff6b6b;
+}
+
+/* ================================
+   GALLERY GRID
+================================ */
 .gallery-grid {
   column-count: 3;
   column-gap: 18px;
 }
 
+/* ================================
+   IMAGE STYLE
+================================ */
 .gallery-grid img {
   width: 100%;
   margin-bottom: 18px;
@@ -10,9 +43,70 @@
   transition: transform .4s, opacity .4s;
 }
 
-.gallery-grid img:hover {
-  transform: scale(1.03);
-  opacity: .85;
+/* ================================
+   HOVER EFFECT
+================================ */
+.gallery-grid a:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+}
+
+.gallery-grid a:hover img {
+  transform: scale(1.08);
+  filter: brightness(0.85);
+}
+
+/* ================================
+   CAPTION OVERLAY
+================================ */
+.caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 16px;
+  font-size: 0.85rem;
+  color: #eee;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.85),
+    rgba(0,0,0,0.3),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  text-align: left;
+}
+
+.gallery-grid a:hover .caption {
+  opacity: 1;
+}
+
+/* ================================
+   FADE-IN ANIMATION
+================================ */
+.fade-in {
+  animation: fadeIn 1s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ================================
+   MOBILE TWEAKS
+================================ */
+@media (max-width: 600px) {
+  .section {
+    padding: 60px 10px;
+  }
+
+  .gold {
+    font-size: 2rem;
+  }
 }
 
 @media (max-width: 900px) {
