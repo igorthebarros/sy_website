@@ -1,5 +1,11 @@
 ﻿namespace InstagramAPI.DTOs
 {
+    public class InstagramDTO
+    {
+        public string PostId { get; set; } = string.Empty;
+        public string CommentMessage { get; set; } = string.Empty;
+    }
+
     public class PostMediaDTO
     {
         public string InstagramUserId { get; set; } = string.Empty;

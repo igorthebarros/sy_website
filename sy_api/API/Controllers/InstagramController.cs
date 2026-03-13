@@ -171,7 +171,7 @@ namespace MetaAPI.Controllers
         }
 
         [HttpPost("instagram/post/media-comment")]
-        public async Task<IActionResult> PostInstagramMediaComment([FromBody] PostMediaCommentDTO comment)
+        public async Task<IActionResult> PostInstagramMediaComment([FromBody] InstagramDTO comment)
         {
             try
             {
