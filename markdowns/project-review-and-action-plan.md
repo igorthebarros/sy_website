@@ -160,17 +160,19 @@ Waves are ordered by dependency and risk. Each wave ends in a **verifiable, demo
 
 ---
 
-## 🌊 Wave 0 — Security Triage (do immediately, before any other work)
+## 🌊 Wave 0 — Security Triage (completed for now)
 
 **Goal: stop the bleeding. No feature work until secrets are safe.**
 
-- [ ] **Revoke and regenerate** the Telegram bot token (BotFather → `/revoke`) and the Instagram access token (Meta dashboard). Both are burned — they exist in git history.
-- [ ] Move all secrets to **user secrets** (dev) — `dotnet user-secrets set "Telegram:BotToken" "..."` (the API project already has a UserSecretsId) — and environment variables (prod).
-- [ ] Strip secret values from `appsettings.json`, keeping only the keys with empty/placeholder values.
-- [ ] Add a note in the README about secret handling; verify `.gitignore` covers `.env.local`, `appsettings.*.Local.json`.
-- [ ] (Optional but recommended) Rewrite git history or accept rotation as sufficient mitigation.
+- [x] **Revoke and regenerate** the Telegram bot token (BotFather → `/revoke`) and the Instagram access token (Meta dashboard). Both are burned — they exist in git history.
+- [x] Move all secrets to **user secrets** (dev) — `dotnet user-secrets set "Telegram:BotToken" "..."` (the API project already has a UserSecretsId) — and environment variables (prod).
+- [x] Strip secret values from `appsettings.json`, keeping only the keys with empty/placeholder values.
+- [x] Add a note in the README about secret handling; verify `.gitignore` covers `.env.local`, `appsettings.*.Local.json`.
+- [x] (Optional but recommended) Rewrite git history or accept rotation as sufficient mitigation.
 
 **Exit criteria:** repo contains zero live credentials; API still boots with secrets from user-secrets.
+
+> **Deployment reminder:** when the project is deployed, store production secrets in a managed secret store (for example Azure Key Vault, GitHub Actions secrets, or equivalent) and never commit them to the repository or bake them into container images.
 
 ---
 
@@ -264,6 +266,7 @@ Build & deploy:
 - [ ] Add `docker-compose.yml` (api + web + volume for photo storage + db).
 - [ ] GitHub Actions: workflow 1 — .NET build + test on push/PR; workflow 2 — frontend lint + build; workflow 3 — deploy on tag/main (target per handbook Section 10: Azure App Service or container host; frontend to Netlify/Vercel/S3).
 - [ ] Production domain + TLS; re-register Telegram webhook to the production URL with `secret_token`.
+- [ ] Before deployment, move all production secrets to a managed secret store (for example Azure Key Vault, GitHub Actions secrets, or equivalent) and confirm they are not exposed in config files, environment dumps, or container images.
 
 Hardening:
 - [ ] Structured logging throughout (all the "TODO: Add logging" items); remove dead/commented code blocks.
