@@ -1,14 +1,13 @@
-﻿using API.DTOs;
+﻿using System.Text.Json;
+using API.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Service.Domain.Entities;
 using Service.Services;
 
 namespace API.Controllers
 {
-    [ApiController]
-    [Route("api/telegram")]
     public class TelegramController : ControllerBase
     {
-        private readonly string allowedUserId = "123456789"; // Replace with your wife's Telegram user ID
         private readonly ILogger _logger;
         private readonly ITelegramService _service;
 
@@ -18,16 +17,22 @@ namespace API.Controllers
             _service = service;
         }
 
-        [HttpPost("webhook")]
-        public async Task<IActionResult> Webhook([FromBody] TelegramDTO dto)
+        [HttpPost("/api/telegram/webhook")]
+        public async Task<IActionResult> Webhook([FromBody] JsonElement dto)
         {
-            if (dto?.Message == null)
+            //if (dto?.Message == null)
+            //    return Ok();
+
+            try
+            {
+                //await _service.Webhook(dto);
+
                 return Ok();
-
-            if (dto.AllowedUserId != allowedUserId)
-                return Unauthorized();
-
-            return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

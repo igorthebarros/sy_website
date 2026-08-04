@@ -1,8 +1,9 @@
-﻿using Infrastructure;
+﻿using System.Text.Json;
+using Infrastructure.Instagram;
+using Infrastructure.Telegram;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Service.Domain.Entities;
-using System.Text.Json;
 
 namespace Service.Services
 {
@@ -20,6 +21,9 @@ namespace Service.Services
         private readonly string STORAGE_PATH;
         private readonly string TOKEN;
         private readonly string BASE_URL;
+        private readonly string FILE_URL = "https://api.telegram.org/file/bot{0}/{1}";
+        private readonly string GET_FILE_INFO_URL = "https://api.telegram.org/bot{0}/getFile?file_id={1}";
+        private readonly string SEND_MESSAGE_URL = "https://api.telegram.org/bot{0}/sendMessage";
 
         public TelegramService(ILogger<TelegramService> logger, TelegramClient client, IConfiguration config   )
         {
@@ -32,20 +36,22 @@ namespace Service.Services
             STORAGE_PATH = _config["Telegram:PhotoStoragePath"] ?? string.Empty;
             TOKEN = _config["Telegram:BotToken"] ?? string.Empty;
         }
+        private string Format(string route, params object[] args)
+            => string.Format(route, args);
 
         public async Task Webhook(TelegramRequest update)
         {
             var message = update.Message;
 
             // Handle commands
-            if (!string.IsNullOrEmpty(message.Text))
+            if (!string.IsNullOrEmpty(message.MessageText))
             {
-                if (message.Text.StartsWith("/shoot"))
+                if (message.MessageText.StartsWith("/shoot"))
                 {
-                    var album = message.Text.Replace("/shoot", "").Trim();
+                    var album = message.MessageText.Replace("/shoot", "").Trim();
                     CurrentAlbum.Name = album;
 
-                    await SendMessage(TOKEN, message.Chat.Id,
+                    await SendMessage(TOKEN, message.MessageChatId,
                         $"📷 Album set to: {album}");
                 }
             }
@@ -57,38 +63,37 @@ namespace Service.Services
                     message.Document.FileName,
                     STORAGE_PATH);
 
-                await SendMessage(TOKEN, message.Chat.Id,
+                await SendMessage(TOKEN, message.MessageChatId,
                     "✅ Photo uploaded successfully.");
             }
 
             // Handle photos
-            if (message.Photo != null && message.Photo.Any())
+            if (message.Photos != null && message.Photos.Any())
             {
-                var photo = message.Photo.Last(); // highest resolution
+                var photo = message.Photos.Last(); // highest resolution
 
                 var fileName = $"{Guid.NewGuid()}.jpg";
 
-                await DownloadFile(TOKEN, photo.FileId,
+                await DownloadFile(TOKEN, photo,
                     fileName,
                     STORAGE_PATH);
 
-                await SendMessage(TOKEN, message.Chat.Id,
+                await SendMessage(TOKEN, message.MessageChatId,
                     "📸 Photo saved.");
             }
-
-            await _client.Webhook();
         }
 
         private async Task DownloadFile(string token, string fileId, string fileName, string storagePath)
         {
-            var fileInfoUrl = $"https://api.telegram.org/bot{token}/getFile?file_id={fileId}";
+            var fileInfoUrl = Format(FILE_URL, token, fileId);
+
             var fileInfoResponse = await _client.GetStringAsync(fileInfoUrl);
 
             var fileInfo = JsonSerializer.Deserialize<TelegramFileResponse>(fileInfoResponse);
 
             var filePath = fileInfo!.Result.FilePath;
 
-            var fileUrl = $"https://api.telegram.org/file/bot{token}/{filePath}";
+            var fileUrl = Format(FILE_URL, token, filePath);
 
             var bytes = await _client.GetByteArrayAsync(fileUrl);
 
@@ -102,13 +107,13 @@ namespace Service.Services
             await File.WriteAllBytesAsync(fullPath, bytes);
         }
 
-        private async Task SendMessage(string token, long chatId, string text)
+        private async Task SendMessage(string token, string chatId, string text)
         {
-            var url = $"https://api.telegram.org/bot{token}/sendMessage";
+            var url = Format(SEND_MESSAGE_URL, token);
 
             var content = new FormUrlEncodedContent(new[]
             {
-                new KeyValuePair<string,string>("chat_id", chatId.ToString()),
+                new KeyValuePair<string,string>("chat_id", chatId),
                 new KeyValuePair<string,string>("text", text)
             });
 

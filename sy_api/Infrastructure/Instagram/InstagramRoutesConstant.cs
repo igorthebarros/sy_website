@@ -1,4 +1,4 @@
-﻿namespace InstagramInfrastructure
+﻿namespace Infrastructure.Instagram
 {
     public static class InstagramRoutesConstant
     {

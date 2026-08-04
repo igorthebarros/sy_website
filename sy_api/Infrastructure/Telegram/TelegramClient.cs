@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Net.Http.Headers;
+using Microsoft.Extensions.Options;
 
-namespace Infrastructure
+namespace Infrastructure.Telegram
 {
     public interface ITelegramClient
     {
-        Task Webhook();
         Task PostAsync(string url, HttpContent content);
         Task<byte[]> GetByteArrayAsync(string url);
         Task<string> GetStringAsync(string url);
@@ -12,18 +12,19 @@ namespace Infrastructure
 
     public class TelegramClient : ITelegramClient
     {
-        private readonly IConfiguration _config;
         private readonly HttpClient _httpClient;
+        private readonly TelegramOptions _options;
 
-        public TelegramClient(IConfiguration config, IHttpClientFactory httpClientFactory)
+        public TelegramClient(HttpClient http, IOptions<TelegramOptions> options)
         {
-            _config = config;
-            _httpClient = httpClientFactory.CreateClient();
-        }
+            _httpClient = http;
+            _options = options.Value;
 
-        public async Task Webhook()
-        {
+            _httpClient.BaseAddress = new Uri(_options.BaseUrl);
 
+            // TODO: Check the difference without it
+            _httpClient.DefaultRequestHeaders.Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         public async Task PostAsync(string url, HttpContent content)

@@ -1,4 +1,4 @@
-﻿using InstagramInfrastructure;
+﻿using Infrastructure.Instagram;
 
 namespace MetaService.Services
 {

@@ -1,8 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 
-namespace InstagramInfrastructure
+namespace Infrastructure.Instagram
 {
     public interface IInstagramClient
     {
@@ -24,9 +23,8 @@ namespace InstagramInfrastructure
         // TODO: Add try catch and logging
         private readonly HttpClient _httpClient;
         private readonly InstagramOptions _options;
-        private readonly IConfiguration _config;
 
-        public InstagramClient(HttpClient http, IOptions<InstagramOptions> opts, IConfiguration config)
+        public InstagramClient(HttpClient http, IOptions<InstagramOptions> opts)
         {
             _httpClient = http;
             _options = opts.Value;
@@ -36,7 +34,6 @@ namespace InstagramInfrastructure
             // TODO: Check the difference without it
             _httpClient.DefaultRequestHeaders.Accept
                 .Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _config = config;
         }
 
         private string Format(string route, params object[] args)
@@ -45,7 +42,7 @@ namespace InstagramInfrastructure
         #region BASICS
         public async Task<string> GetAccountIdAsync()
         {
-            var accountId = _config["Instagram:AccountId"];
+            var accountId = _options.AccountId;
 
             if (string.IsNullOrEmpty(accountId))
             {
@@ -79,7 +76,7 @@ namespace InstagramInfrastructure
 
         public async Task<string> GetProfileBasicInfoAsync()
         {
-            var accountId = _config["Instagram:AccountId"];
+            var accountId = _options.AccountId;
 
             if (string.IsNullOrEmpty(accountId))
             {
@@ -112,8 +109,6 @@ namespace InstagramInfrastructure
 
         public async Task<string> GetPostsAsync()
         {
-            var accountId = _config["Instagram:AccountId"];
-            var token = _config["Instagram:Token"];
             var path = InstagramRoutesConstant.INSTAGRAM_POSTS;
 
             var uri = Format(path, _options.AccountId, _options.Token);

@@ -1,5 +1,5 @@
-using Infrastructure;
-using InstagramInfrastructure;
+using Infrastructure.Instagram;
+using Infrastructure.Telegram;
 using MetaService.Services;
 using Service.Services;
 
@@ -20,6 +20,9 @@ builder.Services.AddHttpClient<InstagramClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Instagram:BaseUrl"]!);
 });
+
+builder.Services.Configure<TelegramOptions>(
+    builder.Configuration.GetSection("Telegram"));
 
 builder.Services.AddHttpClient<TelegramClient>(client =>
 {
