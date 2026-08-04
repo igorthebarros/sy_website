@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MetaAPI.Controllers
 {
+    [ApiController]
     public class InstagramController : ControllerBase
     {
         private readonly IInstagramService _service;
@@ -22,12 +23,11 @@ namespace MetaAPI.Controllers
             try
             {
                 var response = await _service.GetAccountIdAsync();
-
                 return Content(response, "application/json");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram account id");
             }
         }
 
@@ -37,12 +37,11 @@ namespace MetaAPI.Controllers
             try
             {
                 var response = await _service.GetAccountAsync();
-
                 return Content(response, "application/json");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram account");
             }
         }
 
@@ -52,12 +51,11 @@ namespace MetaAPI.Controllers
             try
             {
                 var response = await _service.GetProfileBasicAsync(id);
-
                 return Content(response, "application/json");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram profile info");
             }
         }
 
@@ -67,12 +65,11 @@ namespace MetaAPI.Controllers
             try
             {
                 var response = await _service.GetProfileStatsInfoAsync();
-
                 return Content(response, "application/json");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram profile stats");
             }
         }
 
@@ -82,12 +79,11 @@ namespace MetaAPI.Controllers
             try
             {
                 var response = await _service.GetProfileBusinessInfoAsync();
-
                 return Content(response, "application/json");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram business info");
             }
         }
         #endregion
@@ -99,12 +95,11 @@ namespace MetaAPI.Controllers
             try
             {
                 var response = await _service.GetPostsAsync();
-
                 return Content(response, "application/json");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return Problem(detail: ex.Message, title: "Instagram media upload failed");
             }
             //var token = _config["Instagram:Token"];
             //media.InstagramUserToken = token;
@@ -138,12 +133,11 @@ namespace MetaAPI.Controllers
             try
             {
                 var response = await _service.GetPostsAsync();
-
                 return Content(response, "application/json");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return Problem(detail: ex.Message, title: "Instagram media publish failed");
             }
             //var token = _config["Instagram:Token"];
             //media.InstagramUserToken = token;
@@ -176,12 +170,11 @@ namespace MetaAPI.Controllers
             try
             {
                 var response = await _service.GetPostsAsync();
-
                 return Content(response, "application/json");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return Problem(detail: ex.Message, title: "Instagram media comment failed");
             }
             //var token = _config["Instagram:Token"];
             //var url = $"https://graph.instagram.com/{comment.PostId}/comments";
@@ -212,12 +205,11 @@ namespace MetaAPI.Controllers
             try
             {
                 var response = await _service.GetPostsAsync();
-
                 return Content(response, "application/json");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram posts");
             }
         }
 
@@ -226,13 +218,12 @@ namespace MetaAPI.Controllers
         {
             try
             {
-                var response = await _service.GetPostsAsync();
-
+                var response = await _service.GetPostByIdAsync(id);
                 return Content(response, "application/json");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram post");
             }
         }
         #endregion
@@ -243,13 +234,12 @@ namespace MetaAPI.Controllers
         {
             try
             {
-                var response = await _service.GetPostsAsync();
-
+                var response = await _service.GetAccountInsightsAsync(id);
                 return Content(response, "application/json");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram insights");
             }
         }
         #endregion

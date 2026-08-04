@@ -109,16 +109,18 @@ namespace Infrastructure.Instagram
 
         public async Task<string> GetPostsAsync()
         {
-            var path = InstagramRoutesConstant.INSTAGRAM_POSTS;
+            if (string.IsNullOrWhiteSpace(_options.AccountId))
+            {
+                throw new InvalidOperationException("Instagram Account ID is not configured.");
+            }
 
+            var path = InstagramRoutesConstant.INSTAGRAM_POSTS;
             var uri = Format(path, _options.AccountId, _options.Token);
 
             var response = await _httpClient.GetAsync(uri);
-
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsStringAsync();
-            throw new NotImplementedException();
         }
 
         public async Task<string> CommentAsync(string postId, string message)
