@@ -1,6 +1,7 @@
 ﻿using InstagramAPI.DTOs;
 using MetaService.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace MetaAPI.Controllers
 {
@@ -8,9 +9,18 @@ namespace MetaAPI.Controllers
     public class InstagramController : ControllerBase
     {
         private readonly IInstagramService _service;
-        public InstagramController(IInstagramService service)
+        private readonly ILogger<InstagramController> _logger;
+
+        public InstagramController(IInstagramService service, ILogger<InstagramController> logger)
         {
             _service = service;
+            _logger = logger;
+        }
+
+        private ObjectResult HandleFailure(Exception ex, string title)
+        {
+            _logger.LogError(ex, "{Title}", title);
+            return Problem(title: title, statusCode: StatusCodes.Status500InternalServerError);
         }
 
         // TODO: Add cache - [ResponseCache(Duration = 3600)]
@@ -27,7 +37,7 @@ namespace MetaAPI.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram account id");
+                return HandleFailure(ex, "Failed to retrieve Instagram account id");
             }
         }
 
@@ -41,7 +51,7 @@ namespace MetaAPI.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram account");
+                return HandleFailure(ex, "Failed to retrieve Instagram account");
             }
         }
 
@@ -55,7 +65,7 @@ namespace MetaAPI.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram profile info");
+                return HandleFailure(ex, "Failed to retrieve Instagram profile info");
             }
         }
 
@@ -69,7 +79,7 @@ namespace MetaAPI.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram profile stats");
+                return HandleFailure(ex, "Failed to retrieve Instagram profile stats");
             }
         }
 
@@ -78,12 +88,12 @@ namespace MetaAPI.Controllers
         {
             try
             {
-                var response = await _service.GetProfileBusinessInfoAsync();
+                var response = await _service.GetProfileBusinessInfoAsync(id);
                 return Content(response, "application/json");
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram business info");
+                return HandleFailure(ex, "Failed to retrieve Instagram business info");
             }
         }
         #endregion
@@ -99,7 +109,7 @@ namespace MetaAPI.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.Message, title: "Instagram media upload failed");
+                return HandleFailure(ex, "Instagram media upload failed");
             }
             //var token = _config["Instagram:Token"];
             //media.InstagramUserToken = token;
@@ -137,7 +147,7 @@ namespace MetaAPI.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.Message, title: "Instagram media publish failed");
+                return HandleFailure(ex, "Instagram media publish failed");
             }
             //var token = _config["Instagram:Token"];
             //media.InstagramUserToken = token;
@@ -174,7 +184,7 @@ namespace MetaAPI.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.Message, title: "Instagram media comment failed");
+                return HandleFailure(ex, "Instagram media comment failed");
             }
             //var token = _config["Instagram:Token"];
             //var url = $"https://graph.instagram.com/{comment.PostId}/comments";
@@ -209,7 +219,7 @@ namespace MetaAPI.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram posts");
+                return HandleFailure(ex, "Failed to retrieve Instagram posts");
             }
         }
 
@@ -223,7 +233,7 @@ namespace MetaAPI.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram post");
+                return HandleFailure(ex, "Failed to retrieve Instagram post");
             }
         }
         #endregion
@@ -239,7 +249,7 @@ namespace MetaAPI.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(detail: ex.Message, title: "Failed to retrieve Instagram insights");
+                return HandleFailure(ex, "Failed to retrieve Instagram insights");
             }
         }
         #endregion
