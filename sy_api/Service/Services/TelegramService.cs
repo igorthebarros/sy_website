@@ -43,6 +43,15 @@ namespace Service.Services
         {
             var message = update.Message;
 
+            if (!string.IsNullOrWhiteSpace(ALLOWED_USER_ID) &&
+                message.MessageChatId != ALLOWED_USER_ID)
+            {
+                _logger.LogWarning(
+                    "Ignoring Telegram update from unauthorized chat_id {ChatId}",
+                    message.MessageChatId);
+                return;
+            }
+
             // Handle commands
             if (!string.IsNullOrEmpty(message.MessageText))
             {
