@@ -57,7 +57,7 @@ namespace Service.Services
             }
 
             // Handle uploaded files
-            if (message.Document != null)
+            if (!string.IsNullOrWhiteSpace(message.Document?.FileId))
             {
                 await DownloadFile(TOKEN, message.Document.FileId,
                     message.Document.FileName,
