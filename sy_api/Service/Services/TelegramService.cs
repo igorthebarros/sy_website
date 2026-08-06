@@ -16,6 +16,7 @@ namespace Service.Services
     {
         private readonly ILogger _logger;
         private readonly TelegramClient _client;
+        private readonly ICurrentAlbumStore _albumStore;
         private readonly IConfiguration _config;
         private readonly string ALLOWED_USER_ID;
         private readonly string STORAGE_PATH;
@@ -25,10 +26,15 @@ namespace Service.Services
         private readonly string GET_FILE_INFO_URL = "https://api.telegram.org/bot{0}/getFile?file_id={1}";
         private readonly string SEND_MESSAGE_URL = "https://api.telegram.org/bot{0}/sendMessage";
 
-        public TelegramService(ILogger<TelegramService> logger, TelegramClient client, IConfiguration config   )
+        public TelegramService(
+            ILogger<TelegramService> logger,
+            TelegramClient client,
+            ICurrentAlbumStore albumStore,
+            IConfiguration config)
         {
             _logger = logger;
             _client = client;
+            _albumStore = albumStore;
             _config = config;
 
             BASE_URL = _config["Telegram:BaseUrl"] ?? string.Empty;
@@ -58,7 +64,7 @@ namespace Service.Services
                 if (message.MessageText.StartsWith("/shoot"))
                 {
                     var album = message.MessageText.Replace("/shoot", "").Trim();
-                    CurrentAlbum.Name = album;
+                    _albumStore.SetAlbum(message.MessageChatId, album);
 
                     await SendMessage(TOKEN, message.MessageChatId,
                         $"📷 Album set to: {album}");
@@ -70,6 +76,7 @@ namespace Service.Services
             {
                 await DownloadFile(TOKEN, message.Document.FileId,
                     message.Document.FileName,
+                    message.MessageChatId,
                     STORAGE_PATH);
 
                 await SendMessage(TOKEN, message.MessageChatId,
@@ -85,6 +92,7 @@ namespace Service.Services
 
                 await DownloadFile(TOKEN, photo,
                     fileName,
+                    message.MessageChatId,
                     STORAGE_PATH);
 
                 await SendMessage(TOKEN, message.MessageChatId,
@@ -92,7 +100,7 @@ namespace Service.Services
             }
         }
 
-        private async Task DownloadFile(string token, string fileId, string fileName, string storagePath)
+        private async Task DownloadFile(string token, string fileId, string fileName, string chatId, string storagePath)
         {
             var fileInfoUrl = Format(GET_FILE_INFO_URL, token, fileId);
 
@@ -111,7 +119,7 @@ namespace Service.Services
 
             var bytes = await _client.GetByteArrayAsync(fileUrl);
 
-            var albumPath = Path.Combine(storagePath, CurrentAlbum.Name ?? "default");
+            var albumPath = Path.Combine(storagePath, _albumStore.GetAlbumOrDefault(chatId));
 
             if (!Directory.Exists(albumPath))
                 Directory.CreateDirectory(albumPath);

@@ -11,6 +11,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IInstagramService, InstagramService>();
+builder.Services.AddSingleton<ICurrentAlbumStore, CurrentAlbumStore>();
 builder.Services.AddTransient<ITelegramService, TelegramService>();
 
 builder.Services.Configure<InstagramOptions>(

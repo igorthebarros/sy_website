@@ -1,10 +1,5 @@
 ﻿namespace Service.Domain.Entities
 {
-    public static class CurrentAlbum
-    {
-        public static string? Name { get; set; }
-    }
-
     public class TelegramRequest
     {
         public TelegramMesssage Message { get; set; } = new TelegramMesssage();
