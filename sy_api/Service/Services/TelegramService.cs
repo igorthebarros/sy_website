@@ -72,10 +72,13 @@ namespace Service.Services
             }
 
             // Handle uploaded files
-            if (!string.IsNullOrWhiteSpace(message.Document?.FileId))
+            var document = message.Document;
+            if (!string.IsNullOrWhiteSpace(document?.FileId))
             {
-                await DownloadFile(TOKEN, message.Document.FileId,
-                    message.Document.FileName,
+                var safeFileName = Path.GetFileName(document.FileName);
+
+                await DownloadFile(TOKEN, document.FileId,
+                    safeFileName,
                     message.MessageChatId,
                     STORAGE_PATH);
 
