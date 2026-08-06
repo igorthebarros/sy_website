@@ -85,13 +85,18 @@ namespace Service.Services
 
         private async Task DownloadFile(string token, string fileId, string fileName, string storagePath)
         {
-            var fileInfoUrl = Format(FILE_URL, token, fileId);
+            var fileInfoUrl = Format(GET_FILE_INFO_URL, token, fileId);
 
             var fileInfoResponse = await _client.GetStringAsync(fileInfoUrl);
 
             var fileInfo = JsonSerializer.Deserialize<TelegramFileResponse>(fileInfoResponse);
 
-            var filePath = fileInfo!.Result.FilePath;
+            var filePath = fileInfo?.Result.FilePath;
+
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new InvalidOperationException("Telegram getFile response did not contain result.file_path.");
+            }
 
             var fileUrl = Format(FILE_URL, token, filePath);
 
