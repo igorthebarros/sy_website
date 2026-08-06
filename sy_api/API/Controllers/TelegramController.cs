@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using API.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Service.Domain.Entities;
 using Service.Services;
@@ -20,18 +19,26 @@ namespace API.Controllers
         [HttpPost("/api/telegram/webhook")]
         public async Task<IActionResult> Webhook([FromBody] JsonElement dto)
         {
-            //if (dto?.Message == null)
-            //    return Ok();
-
             try
             {
-                //await _service.Webhook(dto);
+                var update = dto.Deserialize<TelegramRequest>(new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (update is null)
+                {
+                    return Ok();
+                }
+
+                await _service.Webhook(update);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                _logger.LogError(e, "Error processing Telegram webhook");
+                return Problem(title: "Telegram webhook processing failed.");
             }
         }
     }
