@@ -64,10 +64,10 @@ namespace Service.Services
                 if (message.MessageText.StartsWith("/shoot"))
                 {
                     var album = message.MessageText.Replace("/shoot", "").Trim();
-                    _albumStore.SetAlbum(message.MessageChatId, album);
+                    var sanitizedAlbum = _albumStore.SetAlbum(message.MessageChatId, album);
 
                     await SendMessage(TOKEN, message.MessageChatId,
-                        $"📷 Album set to: {album}");
+                        $"📷 Album set to: {sanitizedAlbum}");
                 }
             }
 
