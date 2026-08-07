@@ -1,8 +1,0 @@
-<Solution>
-  <Folder Name="/Itens de Solução/">
-    <File Path=".gitignore" />
-  </Folder>
-  <Project Path="InstagramAPI/InstagramAPI.csproj" />
-  <Project Path="InstagramInfrastructure/InstagramInfrastructure.csproj" />
-  <Project Path="InstagramService/InstagramService.csproj" />
-</Solution>

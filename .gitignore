@@ -69,6 +69,12 @@ web_modules/
 .env
 .env.*
 !.env.example
+.env.local
+.env.*.local
+
+# Local appsettings files that may contain secrets
+appsettings.Local.json
+appsettings.*.Local.json
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

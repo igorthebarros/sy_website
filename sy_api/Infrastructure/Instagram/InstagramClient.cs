@@ -1,19 +1,18 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 
-namespace InstagramInfrastructure
+namespace Infrastructure.Instagram
 {
     public interface IInstagramClient
     {
         Task<string> GetAccountIdAsync();
         Task<string> GetAccountAsync();
-        Task<string> GetProfileBasicInfoAsync();
+        Task<string> GetProfileBasicInfoAsync(string accountId);
         Task<string> GetProfileStatsInfoAsync();
-        Task<string> GetProfileBusinessInfoAsync();
+        Task<string> GetProfileBusinessInfoAsync(string accountId);
         Task<string> GetPostsAsync();
         Task<string> GetPostByIdAsync(string postId);
-        Task<string> GetAccountInsightsAsync(string postId);
+        Task<string> GetAccountInsightsAsync(string accountId);
         Task<string> CommentAsync(string postId, string message);
         Task<string> UploadPostAsync(string imageUrl, string caption);
         Task<string> PublishPostAsync(string creationId);
@@ -24,9 +23,8 @@ namespace InstagramInfrastructure
         // TODO: Add try catch and logging
         private readonly HttpClient _httpClient;
         private readonly InstagramOptions _options;
-        private readonly IConfiguration _config;
 
-        public InstagramClient(HttpClient http, IOptions<InstagramOptions> opts, IConfiguration config)
+        public InstagramClient(HttpClient http, IOptions<InstagramOptions> opts)
         {
             _httpClient = http;
             _options = opts.Value;
@@ -36,7 +34,6 @@ namespace InstagramInfrastructure
             // TODO: Check the difference without it
             _httpClient.DefaultRequestHeaders.Accept
                 .Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _config = config;
         }
 
         private string Format(string route, params object[] args)
@@ -45,7 +42,7 @@ namespace InstagramInfrastructure
         #region BASICS
         public async Task<string> GetAccountIdAsync()
         {
-            var accountId = _config["Instagram:AccountId"];
+            var accountId = _options.AccountId;
 
             if (string.IsNullOrEmpty(accountId))
             {
@@ -77,11 +74,9 @@ namespace InstagramInfrastructure
         }
         #endregion
 
-        public async Task<string> GetProfileBasicInfoAsync()
+        public async Task<string> GetProfileBasicInfoAsync(string accountId)
         {
-            var accountId = _config["Instagram:AccountId"];
-
-            if (string.IsNullOrEmpty(accountId))
+            if (string.IsNullOrWhiteSpace(accountId))
             {
                 throw new InvalidOperationException("Instagram Account ID is not configured.");
             };
@@ -112,18 +107,18 @@ namespace InstagramInfrastructure
 
         public async Task<string> GetPostsAsync()
         {
-            var accountId = _config["Instagram:AccountId"];
-            var token = _config["Instagram:Token"];
-            var path = InstagramRoutesConstant.INSTAGRAM_POSTS;
+            if (string.IsNullOrWhiteSpace(_options.AccountId))
+            {
+                throw new InvalidOperationException("Instagram Account ID is not configured.");
+            }
 
+            var path = InstagramRoutesConstant.INSTAGRAM_POSTS;
             var uri = Format(path, _options.AccountId, _options.Token);
 
             var response = await _httpClient.GetAsync(uri);
-
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsStringAsync();
-            throw new NotImplementedException();
         }
 
         public async Task<string> CommentAsync(string postId, string message)
@@ -213,11 +208,16 @@ namespace InstagramInfrastructure
             return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<string> GetProfileBusinessInfoAsync()
+        public async Task<string> GetProfileBusinessInfoAsync(string accountId)
         {
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                throw new InvalidOperationException("Instagram Account ID is not configured.");
+            }
+
             var path = InstagramRoutesConstant.INSTAGRAM_PROFILE_BUSINESS_INFO;
 
-            var uri = Format(path, _options.AccountId, _options.Token);
+            var uri = Format(path, accountId, _options.Token);
 
             var response = await _httpClient.GetAsync(uri);
 
@@ -226,11 +226,16 @@ namespace InstagramInfrastructure
             return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<string> GetAccountInsightsAsync(string postId)
+        public async Task<string> GetAccountInsightsAsync(string accountId)
         {
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                throw new InvalidOperationException("Instagram Account ID is not configured.");
+            }
+
             var path = InstagramRoutesConstant.INSTAGRAM_DATA_INSIGHTS;
 
-            var uri = Format(path, _options.AccountId, _options.Token);
+            var uri = Format(path, accountId, _options.Token);
 
             var response = await _httpClient.GetAsync(uri);
 

@@ -1,4 +1,4 @@
-﻿using InstagramInfrastructure;
+﻿using Infrastructure.Instagram;
 
 namespace MetaService.Services
 {
@@ -8,10 +8,10 @@ namespace MetaService.Services
         Task<string> GetAccountIdAsync();
         Task<string> GetAccountAsync();
         Task<string> GetProfileStatsInfoAsync();
-        Task<string> GetProfileBusinessInfoAsync();
+        Task<string> GetProfileBusinessInfoAsync(string accountId);
         Task<string> GetPostsAsync();
         Task<string> GetPostByIdAsync(string postId);
-        Task<string> GetAccountInsightsAsync(string postId);
+        Task<string> GetAccountInsightsAsync(string accountId);
         Task<string> CommentAsync(string postId, string message);
         Task<string> UploadPostAsync(string imageUrl, string caption);
         Task<string> PublishPostAsync(string creationId);
@@ -49,9 +49,9 @@ namespace MetaService.Services
             return await _client.GetAccountIdAsync();
         }
 
-        public async    Task<string> GetAccountInsightsAsync(string postId)
+        public async Task<string> GetAccountInsightsAsync(string accountId)
         {
-            return await _client.GetAccountInsightsAsync(postId);
+            return await _client.GetAccountInsightsAsync(accountId);
         }
 
         public async Task<string> GetPostByIdAsync(string postId)
@@ -66,12 +66,12 @@ namespace MetaService.Services
 
         public async Task<string> GetProfileBasicAsync(string accountId)
         {
-            return await _client.GetProfileBasicInfoAsync();
+            return await _client.GetProfileBasicInfoAsync(accountId);
         }
 
-        public async Task<string> GetProfileBusinessInfoAsync()
+        public async Task<string> GetProfileBusinessInfoAsync(string accountId)
         {
-            return await _client.GetProfileBusinessInfoAsync();
+            return await _client.GetProfileBusinessInfoAsync(accountId);
         }
 
         public async Task<string> GetProfileStatsInfoAsync()
