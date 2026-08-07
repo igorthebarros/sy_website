@@ -298,6 +298,8 @@ flowchart LR
 
 # Part 4 — Testing Strategy
 
+> **Maintenance rule:** after every merged PR, update `markdowns/testing-checklist.md` with the new test status, executed commands, and any newly testable or blocked areas.
+
 ## 4.1 Per-wave verification (manual smoke)
 
 | Wave | Smoke test |
