@@ -300,6 +300,13 @@ flowchart LR
 
 > **Maintenance rule:** after every merged PR, update `markdowns/testing-checklist.md` with the new test status, executed commands, and any newly testable or blocked areas.
 
+## 4.0 Documentation Maintenance (Per Merged PR)
+
+After every merged PR, update both files below:
+
+- `markdowns/testing-checklist.md`: refresh current test status, executed commands, and coverage gaps.
+- `markdowns/backups/*.md`: add or update a compact session/implementation backup file with key decisions, fixes, and commit references.
+
 ## 4.1 Per-wave verification (manual smoke)
 
 | Wave | Smoke test |
