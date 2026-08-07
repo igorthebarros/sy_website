@@ -1,10 +1,5 @@
 ﻿namespace Service.Domain.Entities
 {
-    public static class CurrentAlbum
-    {
-        public static string? Name { get; set; }
-    }
-
     public class TelegramRequest
     {
         public TelegramMesssage Message { get; set; } = new TelegramMesssage();
@@ -17,7 +12,7 @@
         public string MessageChatId { get; set; } = string.Empty;
         public string MessageText { get; set; } = string.Empty;
         public IList<string> Photos { get; set; } = new List<string>();
-        public TelegramDocument Document { get; set; } = new TelegramDocument();
+        public TelegramDocument? Document { get; set; }
     }
 
     public class TelegramFileResponse

@@ -16,6 +16,7 @@ namespace Service.Services
     {
         private readonly ILogger _logger;
         private readonly TelegramClient _client;
+        private readonly ICurrentAlbumStore _albumStore;
         private readonly IConfiguration _config;
         private readonly string ALLOWED_USER_ID;
         private readonly string STORAGE_PATH;
@@ -25,10 +26,15 @@ namespace Service.Services
         private readonly string GET_FILE_INFO_URL = "https://api.telegram.org/bot{0}/getFile?file_id={1}";
         private readonly string SEND_MESSAGE_URL = "https://api.telegram.org/bot{0}/sendMessage";
 
-        public TelegramService(ILogger<TelegramService> logger, TelegramClient client, IConfiguration config   )
+        public TelegramService(
+            ILogger<TelegramService> logger,
+            TelegramClient client,
+            ICurrentAlbumStore albumStore,
+            IConfiguration config)
         {
             _logger = logger;
             _client = client;
+            _albumStore = albumStore;
             _config = config;
 
             BASE_URL = _config["Telegram:BaseUrl"] ?? string.Empty;
@@ -43,24 +49,37 @@ namespace Service.Services
         {
             var message = update.Message;
 
+            if (!string.IsNullOrWhiteSpace(ALLOWED_USER_ID) &&
+                message.MessageChatId != ALLOWED_USER_ID)
+            {
+                _logger.LogWarning(
+                    "Ignoring Telegram update from unauthorized chat_id {ChatId}",
+                    message.MessageChatId);
+                return;
+            }
+
             // Handle commands
             if (!string.IsNullOrEmpty(message.MessageText))
             {
                 if (message.MessageText.StartsWith("/shoot"))
                 {
                     var album = message.MessageText.Replace("/shoot", "").Trim();
-                    CurrentAlbum.Name = album;
+                    var sanitizedAlbum = _albumStore.SetAlbum(message.MessageChatId, album);
 
                     await SendMessage(TOKEN, message.MessageChatId,
-                        $"📷 Album set to: {album}");
+                        $"📷 Album set to: {sanitizedAlbum}");
                 }
             }
 
             // Handle uploaded files
-            if (message.Document != null)
+            var document = message.Document;
+            if (!string.IsNullOrWhiteSpace(document?.FileId))
             {
-                await DownloadFile(TOKEN, message.Document.FileId,
-                    message.Document.FileName,
+                var safeFileName = Path.GetFileName(document.FileName);
+
+                await DownloadFile(TOKEN, document.FileId,
+                    safeFileName,
+                    message.MessageChatId,
                     STORAGE_PATH);
 
                 await SendMessage(TOKEN, message.MessageChatId,
@@ -76,6 +95,7 @@ namespace Service.Services
 
                 await DownloadFile(TOKEN, photo,
                     fileName,
+                    message.MessageChatId,
                     STORAGE_PATH);
 
                 await SendMessage(TOKEN, message.MessageChatId,
@@ -83,21 +103,26 @@ namespace Service.Services
             }
         }
 
-        private async Task DownloadFile(string token, string fileId, string fileName, string storagePath)
+        private async Task DownloadFile(string token, string fileId, string fileName, string chatId, string storagePath)
         {
-            var fileInfoUrl = Format(FILE_URL, token, fileId);
+            var fileInfoUrl = Format(GET_FILE_INFO_URL, token, fileId);
 
             var fileInfoResponse = await _client.GetStringAsync(fileInfoUrl);
 
             var fileInfo = JsonSerializer.Deserialize<TelegramFileResponse>(fileInfoResponse);
 
-            var filePath = fileInfo!.Result.FilePath;
+            var filePath = fileInfo?.Result.FilePath;
+
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new InvalidOperationException("Telegram getFile response did not contain result.file_path.");
+            }
 
             var fileUrl = Format(FILE_URL, token, filePath);
 
             var bytes = await _client.GetByteArrayAsync(fileUrl);
 
-            var albumPath = Path.Combine(storagePath, CurrentAlbum.Name ?? "default");
+            var albumPath = Path.Combine(storagePath, _albumStore.GetAlbumOrDefault(chatId));
 
             if (!Directory.Exists(albumPath))
                 Directory.CreateDirectory(albumPath);
