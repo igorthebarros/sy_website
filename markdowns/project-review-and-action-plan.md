@@ -1,6 +1,7 @@
 # SY Photography — Project Review & Action Plan
 
 > **Date:** 2026-08-03
+> **Last status update:** 2026-08-06
 > **Scope reviewed:** `markdowns/gpt-deep-research-report.md` (Developer Handbook), `sy_api/` (.NET backend: API, Infrastructure, Service), `sy_website/` (React frontend), `.github/`
 > **Review method:** Dual-perspective review — Software Architect (alignment & design) and Senior Software Engineer (implementation status & gaps) — followed by a wave-based action plan.
 
@@ -140,17 +141,17 @@ The **vision is well-written and coherent**; the codebase is an early proof-of-c
 
 | Layer | Complete | Remaining work |
 |---|---|---|
-| Handbook / docs | ~90% | Update Instagram scope, specify album read API |
-| Backend — Instagram read path | ~70% | Add `/instagram/posts` route, fix client, typed responses, caching |
+| Handbook / docs | ~92% | Update Instagram scope, specify album read API |
+| Backend — Instagram read path | ~85% | Typed responses, response caching, and end-to-end frontend verification |
 | Backend — Instagram write path | ~20% | Uncomment/rewrite upload, publish, comment using the Service layer |
-| Backend — Telegram pipeline | ~25% | Mapping, URL fix, whitelist, secret token, album-state redesign |
+| Backend — Telegram pipeline | ~70% | Telegram schema parity (`JsonPropertyName`/typed `Update`), webhook `secret_token` verification, and ngrok E2E validation |
 | Backend — Persistence | 0% | EF Core + SQLite/SQL Server, 2 tables, migrations |
 | Backend — Photo serving API | 0% | `GET /albums`, `GET /albums/{id}/photos`, static file serving |
 | Frontend — Instagram gallery | ~85% | Fix endpoint, real About content, mobile pass |
 | Frontend — Telegram albums | 0% | Model, service, album grid + detail views (router) |
-| Testing | 0% | Unit + integration + E2E smoke |
+| Testing | ~35% | Expand Telegram service tests, add integration tests, add frontend tests |
 | CI/CD & deploy | ~10% | Fix Dockerfiles, compose, GitHub Actions |
-| **Overall** | **~30–35%** | The skeleton exists; the connective tissue (contracts, persistence, security) does not |
+| **Overall** | **~50–55%** | Core backend contracts and security baseline improved; persistence, frontend albums, and deployment pipeline still missing |
 
 ---
 
@@ -181,11 +182,11 @@ Waves are ordered by dependency and risk. Each wave ends in a **verifiable, demo
 **Goal: the public site displays the real Instagram gallery end-to-end.**
 
 Backend:
-- [ ] Fix `InstagramClient.GetPostsAsync()` — remove the unreachable `throw NotImplementedException()`, return the response body, and request the fields the frontend needs (`id,caption,media_url,permalink,media_type`).
-- [ ] Add the missing **`GET /instagram/posts`** endpoint to `InstagramController` calling `_service.GetPostsAsync()`.
+- [x] Fix `InstagramClient.GetPostsAsync()` — remove the unreachable `throw NotImplementedException()`, return the response body, and request the fields the frontend needs (`id,caption,media_url,permalink,media_type`).
+- [x] Add the missing **`GET /instagram/posts`** endpoint to `InstagramController` calling `_service.GetPostsAsync()`.
 - [ ] Add `[ApiController]` + `[Route]` attributes to `InstagramController`; pass the `{id}` route params through to the service instead of ignoring them.
-- [ ] Replace `BadRequest(e.Message)` with logged errors + `Problem()` responses.
-- [ ] Restrict CORS to the site origins (`localhost:3420`/`5173` in dev, real domain in prod).
+- [x] Replace `BadRequest(e.Message)` with logged errors + `Problem()` responses.
+- [x] Restrict CORS to the site origins (`localhost:3420`/`5173` in dev, real domain in prod).
 
 Frontend:
 - [ ] Confirm `VITE_API_URL` matches the API's actual port; verify Gallery renders live posts.
@@ -200,12 +201,12 @@ Frontend:
 **Goal: photographer sends `/shoot album` + photos in Telegram → files land in the correct folder on the server.**
 
 - [ ] Create proper Telegram request models matching the real `Update` schema (snake_case: `update_id`, `message.from.id`, `message.chat.id`, `message.text`, `message.photo[]`, `message.document`) using `[JsonPropertyName]` — or adopt the `Telegram.Bot` NuGet package types.
-- [ ] Map the incoming payload in `TelegramController` and **uncomment/wire the service call**.
-- [ ] Fix `DownloadFile`: use `GET_FILE_INFO_URL` for the `getFile` call and `FILE_URL` for the byte download.
-- [ ] **Enforce the whitelist**: reject updates where `from.id != Telegram:AllowedUserId` (return 200 to Telegram, log, and ignore — don't Forbid, to avoid retries).
+- [x] Map the incoming payload in `TelegramController` and **uncomment/wire the service call**.
+- [x] Fix `DownloadFile`: use `GET_FILE_INFO_URL` for the `getFile` call and `FILE_URL` for the byte download.
+- [x] **Enforce the whitelist**: reject updates where `from.id != Telegram:AllowedUserId` (return 200 to Telegram, log, and ignore — don't Forbid, to avoid retries).
 - [ ] Verify the `X-Telegram-Bot-Api-Secret-Token` header against config; register the webhook with `secret_token`.
-- [ ] Replace `static CurrentAlbum.Name` with per-chat state (minimum: `ConcurrentDictionary<long chatId, string album>`; proper fix arrives with the DB in Wave 3).
-- [ ] Sanitize file names from Telegram (`Path.GetFileName`, strip invalid chars) before writing to disk.
+- [x] Replace `static CurrentAlbum.Name` with per-chat state (minimum: `ConcurrentDictionary<long chatId, string album>`; proper fix arrives with the DB in Wave 3).
+- [x] Sanitize file names from Telegram (`Path.GetFileName`, strip invalid chars) before writing to disk.
 - [ ] Move `PhotoStoragePath` to a configurable, non-hardcoded location; add try/catch + `ILogger` throughout the service.
 - [ ] Fix the class-name typo `TelegramMesssage` → `TelegramMessage`.
 - [ ] Test locally with ngrok following the handbook's Section 6, using the curl payloads from Section 8.
@@ -332,31 +333,31 @@ flowchart LR
 
 Consolidated, prioritized list of every issue found. IDs referenced throughout this document.
 
-| ID | Sev | Issue | File | Fix wave |
-|----|-----|-------|------|----------|
-| S1 | 🔴 | Live Instagram + Telegram tokens committed | sy_api/API/appsettings.json | 0 |
-| S2 | 🔴 | No webhook auth (secret token / whitelist) | TelegramController / TelegramService | 2 |
-| S3 | 🔴 | CORS AllowAnyOrigin | sy_api/API/Program.cs | 1 |
-| B1 | 🔴 | Frontend calls nonexistent `GET /instagram/posts` | Gallery.tsx ↔ InstagramController.cs | 1 |
-| B2 | 🔴 | `GetPostsAsync` unreachable `NotImplementedException` | InstagramClient.cs | 1 |
-| B3 | 🔴 | Webhook service call commented out | TelegramController.cs | 2 |
-| B4 | 🔴 | Wrong URL template in `DownloadFile` (`GET_FILE_INFO_URL` unused) | TelegramService.cs | 2 |
-| B5 | 🔴 | Webhook models don't match Telegram schema; no mapping | TelegramRequest.cs | 2 |
-| B6 | 🔴 | Dockerfile references `MetaAPI.csproj` (doesn't exist) | sy_api/API/Dockerfile | 6 |
-| B7 | 🟠 | `AllowedUserId` read but never enforced | TelegramService.cs | 2 |
-| B8 | 🟠 | Static mutable `CurrentAlbum.Name` (race conditions) | TelegramRequest.cs | 2→3 |
-| Q1 | 🟠 | 3 Instagram POST endpoints are stubs calling `GetPostsAsync` | InstagramController.cs | 5 |
-| Q2 | 🟠 | `{id}` route params ignored in service calls | InstagramController / InstagramService | 1 |
-| Q3 | 🟠 | Errors leaked via `BadRequest(e.Message)`, no logging | All controllers | 1 |
-| Q4 | 🟡 | No database / persistence (0% of documented schema) | — | 3 |
-| Q5 | 🟡 | Frontend Dockerfile is dev-only | sy_website/Dockerfile | 6 |
-| Q6 | 🟡 | `.github/workflows` empty — no CI | .github/ | 6 |
-| Q7 | 🟡 | About section uses Unsplash placeholders | About.tsx | 1 |
-| Q8 | 🟡 | Typo `TelegramMesssage`; namespace drift (MetaAPI/InstagramAPI/MetaService) | multiple | 2/6 |
-| Q9 | 🟡 | `react-router-dom` installed but unused | sy_website | 4 |
-| Q10 | 🟡 | ~130 lines of dead commented-out code | InstagramController.cs | 5/6 |
-| Q11 | 🟡 | No tests anywhere | — | 2+ |
-| D1 | 🟡 | Handbook says Instagram "not covered" but it's the main implemented feature; album read API unspecified | gpt-deep-research-report.md | 6 |
+| ID | Sev | Status | Issue | File | Fix wave |
+|----|-----|--------|-------|------|----------|
+| S1 | 🔴 | ✅ Done | Live Instagram + Telegram tokens committed | sy_api/API/appsettings.json | 0 |
+| S2 | 🔴 | ⏳ Missing | No webhook auth (secret token / whitelist) | TelegramController / TelegramService | 2 |
+| S3 | 🔴 | ✅ Done | CORS AllowAnyOrigin | sy_api/API/Program.cs | 1 |
+| B1 | 🔴 | ✅ Done | Frontend calls nonexistent `GET /instagram/posts` | Gallery.tsx ↔ InstagramController.cs | 1 |
+| B2 | 🔴 | ✅ Done | `GetPostsAsync` unreachable `NotImplementedException` | InstagramClient.cs | 1 |
+| B3 | 🔴 | ✅ Done | Webhook service call commented out | TelegramController.cs | 2 |
+| B4 | 🔴 | ✅ Done | Wrong URL template in `DownloadFile` (`GET_FILE_INFO_URL` unused) | TelegramService.cs | 2 |
+| B5 | 🔴 | ⏳ Missing | Webhook models don't match Telegram schema; no mapping | TelegramRequest.cs | 2 |
+| B6 | 🔴 | ⏳ Missing | Dockerfile references `MetaAPI.csproj` (doesn't exist) | sy_api/API/Dockerfile | 6 |
+| B7 | 🟠 | ✅ Done | `AllowedUserId` read but never enforced | TelegramService.cs | 2 |
+| B8 | 🟠 | ✅ Done | Static mutable `CurrentAlbum.Name` (race conditions) | TelegramRequest.cs | 2→3 |
+| Q1 | 🟠 | ⏳ Missing | 3 Instagram POST endpoints are stubs calling `GetPostsAsync` | InstagramController.cs | 5 |
+| Q2 | 🟠 | ✅ Done | `{id}` route params ignored in service calls | InstagramController / InstagramService | 1 |
+| Q3 | 🟠 | ✅ Done | Errors leaked via `BadRequest(e.Message)`, no logging | All controllers | 1 |
+| Q4 | 🟡 | ⏳ Missing | No database / persistence (0% of documented schema) | — | 3 |
+| Q5 | 🟡 | ⏳ Missing | Frontend Dockerfile is dev-only | sy_website/Dockerfile | 6 |
+| Q6 | 🟡 | ⏳ Missing | `.github/workflows` empty — no CI | .github/ | 6 |
+| Q7 | 🟡 | ⏳ Missing | About section uses Unsplash placeholders | About.tsx | 1 |
+| Q8 | 🟡 | ⏳ Missing | Typo `TelegramMesssage`; namespace drift (MetaAPI/InstagramAPI/MetaService) | multiple | 2/6 |
+| Q9 | 🟡 | ⏳ Missing | `react-router-dom` installed but unused | sy_website | 4 |
+| Q10 | 🟡 | ⏳ Missing | ~130 lines of dead commented-out code | InstagramController.cs | 5/6 |
+| Q11 | 🟡 | 🔄 In progress | No tests anywhere | — | 2+ |
+| D1 | 🟡 | ⏳ Missing | Handbook says Instagram "not covered" but it's the main implemented feature; album read API unspecified | gpt-deep-research-report.md | 6 |
 
 ---
 
