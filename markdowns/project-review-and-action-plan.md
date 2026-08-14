@@ -370,4 +370,4 @@ Consolidated, prioritized list of every issue found. IDs referenced throughout t
 
 ---
 
-**Bottom line:** the project is a well-documented ~30–35%-complete proof of concept. The architecture is sound and doesn't need redesign — it needs its contracts honored (frontend↔API, webhook↔Telegram schema), a persistence layer, and immediate secret rotation. Following Waves 0–4 yields a fully working product; Waves 5–6 make it complete and production-grade.
+**Bottom line:** the project is a well-documented ~50–55%-complete proof of concept. The architecture is sound and doesn't need redesign — it needs its contracts honored (frontend↔API, webhook↔Telegram schema), a persistence layer, and immediate secret rotation. Following Waves 0–4 yields a fully working product; Waves 5–6 make it complete and production-grade.
