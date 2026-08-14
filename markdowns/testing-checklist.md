@@ -14,7 +14,7 @@ Update it every time a PR is merged so the team always knows what is tested, wha
 
 - Backend unit tests: PASS (`dotnet test sy_api/Tests/Tests.csproj`) with 8 passed tests.
 - Frontend production build: PASS (`npm run build` in `sy_website`).
-- API runtime smoke: PASS (`GET /swagger/v1/swagger.json` returned 200).
+- API runtime smoke (Development): PASS (`GET /swagger/v1/swagger.json` returned 200).
 
 ### Testable now
 
