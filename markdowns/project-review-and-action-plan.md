@@ -345,7 +345,7 @@ Consolidated, prioritized list of every issue found. IDs referenced throughout t
 | ID | Sev | Status | Issue | File | Fix wave |
 |----|-----|--------|-------|------|----------|
 | S1 | 🔴 | ✅ Done | Live Instagram + Telegram tokens committed | sy_api/API/appsettings.json | 0 |
-| S2 | 🔴 | ⏳ Missing | No webhook auth (secret token / whitelist) | TelegramController / TelegramService | 2 |
+| S2 | 🔴 | ⏳ Missing | Missing webhook secret_token verification (whitelist enforced) | TelegramController / TelegramService | 2 |
 | S3 | 🔴 | ✅ Done | CORS AllowAnyOrigin | sy_api/API/Program.cs | 1 |
 | B1 | 🔴 | ✅ Done | Frontend calls nonexistent `GET /instagram/posts` | Gallery.tsx ↔ InstagramController.cs | 1 |
 | B2 | 🔴 | ✅ Done | `GetPostsAsync` unreachable `NotImplementedException` | InstagramClient.cs | 1 |
