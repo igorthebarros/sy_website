@@ -132,7 +132,7 @@ The **vision is well-written and coherent**; the codebase is an early proof-of-c
 ## 2.3 Security findings (must fix before any deployment)
 
 1. 🔴 **Live secrets committed to git** — `Instagram:Token`, `Telegram:BotToken` in `appsettings.json`. Both must be **revoked/rotated immediately** (git history retains them even after removal).
-2. 🔴 **No webhook authentication** — no `secret_token` header check, no sender whitelist enforcement.
+2. 🔴 **No webhook authentication** — no `secret_token` header check.
 3. 🔴 **CORS `AllowAnyOrigin` + `AllowAnyHeader` + `AllowAnyMethod`**.
 4. 🟠 Exceptions returned to clients via `BadRequest(e.Message)` — internal detail leakage; no logging.
 5. 🟠 No input validation on DTOs; file names from Telegram used without sanitization (path-traversal risk once webhook is live).
