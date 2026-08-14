@@ -132,7 +132,7 @@ The **vision is well-written and coherent**; the codebase is an early proof-of-c
 ## 2.3 Security findings (must fix before any deployment)
 
 1. 🔴 **Live secrets committed to git** — `Instagram:Token`, `Telegram:BotToken` in `appsettings.json`. Both must be **revoked/rotated immediately** (git history retains them even after removal).
-2. 🔴 **No webhook authentication** — no `secret_token` header check, no sender whitelist enforcement.
+2. 🔴 **No webhook authentication** — no `secret_token` header check.
 3. 🔴 **CORS `AllowAnyOrigin` + `AllowAnyHeader` + `AllowAnyMethod`**.
 4. 🟠 Exceptions returned to clients via `BadRequest(e.Message)` — internal detail leakage; no logging.
 5. 🟠 No input validation on DTOs; file names from Telegram used without sanitization (path-traversal risk once webhook is live).
@@ -184,7 +184,7 @@ Waves are ordered by dependency and risk. Each wave ends in a **verifiable, demo
 Backend:
 - [x] Fix `InstagramClient.GetPostsAsync()` — remove the unreachable `throw NotImplementedException()`, return the response body, and request the fields the frontend needs (`id,caption,media_url,permalink,media_type`).
 - [x] Add the missing **`GET /instagram/posts`** endpoint to `InstagramController` calling `_service.GetPostsAsync()`.
-- [ ] Add `[ApiController]` + `[Route]` attributes to `InstagramController`; pass the `{id}` route params through to the service instead of ignoring them.
+- [ ] Add a controller-level `[Route]` attribute (route prefix) to `InstagramController` to avoid repeating route strings in each action.
 - [x] Replace `BadRequest(e.Message)` with logged errors + `Problem()` responses.
 - [x] Restrict CORS to the site origins (`localhost:3420`/`5173` in dev, real domain in prod).
 
@@ -370,4 +370,4 @@ Consolidated, prioritized list of every issue found. IDs referenced throughout t
 
 ---
 
-**Bottom line:** the project is a well-documented ~30–35%-complete proof of concept. The architecture is sound and doesn't need redesign — it needs its contracts honored (frontend↔API, webhook↔Telegram schema), a persistence layer, and immediate secret rotation. Following Waves 0–4 yields a fully working product; Waves 5–6 make it complete and production-grade.
+**Bottom line:** the project is a well-documented ~50–55%-complete proof of concept. The architecture is sound and doesn't need redesign — it needs its contracts honored (frontend↔API, webhook↔Telegram schema), a persistence layer, and immediate secret rotation. Following Waves 0–4 yields a fully working product; Waves 5–6 make it complete and production-grade.
