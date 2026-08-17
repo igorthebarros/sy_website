@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace MetaAPI.Controllers
 {
     [ApiController]
+    [Route("instagram")]
     public class InstagramController : ControllerBase
     {
         private readonly IInstagramService _service;
@@ -27,7 +28,7 @@ namespace MetaAPI.Controllers
         // TODO: Use InstagramPathConstant for endpoints
 
         #region BASICS
-        [HttpGet("instagram/id")]
+        [HttpGet("id")]
         public async Task<IActionResult> GetInstagramAccountId()
         {
             try
@@ -41,7 +42,7 @@ namespace MetaAPI.Controllers
             }
         }
 
-        [HttpGet("instagram")]
+        [HttpGet("")]
         public async Task<IActionResult> GetInstagramAccount()
         {
             try
@@ -55,7 +56,7 @@ namespace MetaAPI.Controllers
             }
         }
 
-        [HttpGet("instagram/profile-info/basic/{id}")]
+        [HttpGet("profile-info/basic/{id}")]
         public async Task<IActionResult> GetInstagramProfileBasicInfo(string id)
         {
             try
@@ -69,7 +70,7 @@ namespace MetaAPI.Controllers
             }
         }
 
-        [HttpGet("instagram/profile-info/stats")]
+        [HttpGet("profile-info/stats")]
         public async Task<IActionResult> GetInstagramProfileStatsInfo()
         {
             try
@@ -83,7 +84,7 @@ namespace MetaAPI.Controllers
             }
         }
 
-        [HttpGet("instagram/profile-info/business/{id}")]
+        [HttpGet("profile-info/business/{id}")]
         public async Task<IActionResult> GetInstagramProfileBusinessInfo(string id)
         {
             try
@@ -99,7 +100,7 @@ namespace MetaAPI.Controllers
         #endregion
 
         #region INSTAGRAM POSTS
-        [HttpPost("instagram/post/media-upload")]
+        [HttpPost("post/media-upload")]
         public async Task<IActionResult> PostInstagramMediaUpload([FromBody] PostMediaDTO media)
         {
             try
@@ -137,7 +138,7 @@ namespace MetaAPI.Controllers
             //}
         }
 
-        [HttpPost("instagram/post/media-publish")]
+        [HttpPost("post/media-publish")]
         public async Task<IActionResult> PostInstagramMediaPublish([FromBody] PostMediaDTO media)
         {
             try
@@ -174,7 +175,7 @@ namespace MetaAPI.Controllers
             //}
         }
 
-        [HttpPost("instagram/post/media-comment")]
+        [HttpPost("post/media-comment")]
         public async Task<IActionResult> PostInstagramMediaComment([FromBody] InstagramDTO comment)
         {
             try
@@ -209,7 +210,7 @@ namespace MetaAPI.Controllers
             //}
         }
 
-        [HttpGet("instagram/posts")]
+        [HttpGet("posts")]
         public async Task<IActionResult> GetInstagramPosts()
         {
             try
@@ -223,7 +224,7 @@ namespace MetaAPI.Controllers
             }
         }
 
-        [HttpGet("instagram/posts/{id}")]
+        [HttpGet("posts/{id}")]
         public async Task<IActionResult> GetInstagramPostsById(string id)
         {
             try
@@ -239,7 +240,7 @@ namespace MetaAPI.Controllers
         #endregion
 
         #region DATA & ANALYTICS
-        [HttpGet("instagram/insights/{id}")]
+        [HttpGet("insights/{id}")]
         public async Task<IActionResult> GetInstagramInsights(string id)
         {
             try
