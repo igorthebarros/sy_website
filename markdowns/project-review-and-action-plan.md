@@ -184,7 +184,7 @@ Waves are ordered by dependency and risk. Each wave ends in a **verifiable, demo
 Backend:
 - [x] Fix `InstagramClient.GetPostsAsync()` — remove the unreachable `throw NotImplementedException()`, return the response body, and request the fields the frontend needs (`id,caption,media_url,permalink,media_type`).
 - [x] Add the missing **`GET /instagram/posts`** endpoint to `InstagramController` calling `_service.GetPostsAsync()`.
-- [ ] Add a controller-level `[Route]` attribute (route prefix) to `InstagramController` to avoid repeating route strings in each action.
+- [x] Add a controller-level `[Route]` attribute (route prefix) to `InstagramController` to avoid repeating route strings in each action.
 - [x] Replace `BadRequest(e.Message)` with logged errors + `Problem()` responses.
 - [x] Restrict CORS to the site origins (`localhost:3420`/`5173` in dev, real domain in prod).
 
@@ -200,15 +200,15 @@ Frontend:
 
 **Goal: photographer sends `/shoot album` + photos in Telegram → files land in the correct folder on the server.**
 
-- [ ] Create proper Telegram request models matching the real `Update` schema (snake_case: `update_id`, `message.from.id`, `message.chat.id`, `message.text`, `message.photo[]`, `message.document`) using `[JsonPropertyName]` — or adopt the `Telegram.Bot` NuGet package types.
+- [x] Create proper Telegram request models matching the real `Update` schema (snake_case: `update_id`, `message.from.id`, `message.chat.id`, `message.text`, `message.photo[]`, `message.document`) using `[JsonPropertyName]` — or adopt the `Telegram.Bot` NuGet package types.
 - [x] Map the incoming payload in `TelegramController` and **uncomment/wire the service call**.
 - [x] Fix `DownloadFile`: use `GET_FILE_INFO_URL` for the `getFile` call and `FILE_URL` for the byte download.
 - [x] **Enforce the whitelist**: reject updates where `from.id != Telegram:AllowedUserId` (return 200 to Telegram, log, and ignore — don't Forbid, to avoid retries).
-- [ ] Verify the `X-Telegram-Bot-Api-Secret-Token` header against config; register the webhook with `secret_token`.
+- [x] Verify the `X-Telegram-Bot-Api-Secret-Token` header against config (`Telegram:WebhookSecretToken`); register the webhook with `secret_token` (registration step pending deployment).
 - [x] Replace `static CurrentAlbum.Name` with per-chat state (minimum: `ConcurrentDictionary<long chatId, string album>`; proper fix arrives with the DB in Wave 3).
 - [x] Sanitize file names from Telegram (`Path.GetFileName`, strip invalid chars) before writing to disk.
-- [ ] Move `PhotoStoragePath` to a configurable, non-hardcoded location; add try/catch + `ILogger` throughout the service.
-- [ ] Fix the class-name typo `TelegramMesssage` → `TelegramMessage`.
+- [x] Move `PhotoStoragePath` to a configurable, non-hardcoded location (config value with cross-platform fallback to `{app}/photo-storage`); add try/catch + `ILogger` throughout the service (structured logging pass continues in Wave 6).
+- [x] Fix the class-name typo `TelegramMesssage` → `TelegramMessage`.
 - [ ] Test locally with ngrok following the handbook's Section 6, using the curl payloads from Section 8.
 
 **Exit criteria:** real photo sent in Telegram appears under `{storage}/{album}/`; unauthorized sender is ignored; bot replies with confirmation messages; `getWebhookInfo` shows no errors.
@@ -338,6 +338,41 @@ After every merged PR, update both files below:
 
 ---
 
+# Status Review — 2026-08-17 (branch & wave completion audit)
+
+## Branch status
+
+| Branch | Status |
+|---|---|
+| `develop` | Up to date; contains all wave work to date |
+| `main` | Content-identical to `develop` (PR #4 squash-merged, then main merged back); everything is shipped |
+| `wave-1-backend` | Fully merged into `develop` (merge-base = tip); stale — flagged for deletion |
+
+## Wave completion at time of review
+
+| Wave | Progress | Notes |
+|---|---|---|
+| Wave 0 — Security Triage | ✅ 5/5 (100%) | Secrets stripped, user-secrets documented |
+| Wave 1 — Instagram read path | 🟡 ~57% → route prefix now done | Remaining: `VITE_API_URL` end-to-end verification; About-section Unsplash placeholders |
+| Wave 2 — Telegram webhook MVP | 🟡 50% → 9/10 after this review's fixes | Remaining: local end-to-end test with ngrok + webhook registration with `secret_token` |
+| Wave 3 — Persistence & Album API | ⏳ 0% | Not started |
+| Wave 4 — Frontend Albums | ⏳ 0% | `react-router-dom` installed but unused |
+| Wave 5 — Instagram write path (optional) | ⏳ 0% | POST endpoints still stubs |
+| Wave 6 — Hardening/CI/CD | ⏳ 0% | Dockerfile still broken (`MetaAPI` ref); no CI workflows |
+
+## Issues found during review → fixes applied
+
+1. **S2 (🔴):** webhook did not verify `X-Telegram-Bot-Api-Secret-Token` — **fixed**: constant-time comparison against `Telegram:WebhookSecretToken`; requests with an invalid token get 401. Webhook must be re-registered with `secret_token` once deployed.
+2. **B5 (🔴):** `TelegramRequest` models did not match Telegram's snake_case `Update` schema, so real payloads would not deserialize — **fixed**: proper `[JsonPropertyName]` models (`update_id`, `message.from.id`, `message.chat.id`, `message.text`, `message.photo[]`, `message.document`), including `getFile` response (`result.file_path`). Whitelist now checks `from.id` per plan; highest-resolution photo selected by `file_size`.
+3. **Hardcoded Windows path:** `PhotoStoragePath` defaulted to `C:\photo-storage` — **fixed**: empty by default with a cross-platform fallback (`{app}/photo-storage`).
+4. **Q8 typo:** `TelegramMesssage` → `TelegramMessage` — **fixed** (namespace drift still pending, Wave 6).
+5. **Wave 1 route prefix:** controller-level `[Route("instagram")]` added to `InstagramController`; public URLs unchanged.
+6. **Stale branch:** `wave-1-backend` is fully merged — delete it (`git push origin --delete wave-1-backend`).
+
+Validation: `dotnet build sy_api/sy_api.slnx` clean; `dotnet test sy_api/Tests/Tests.csproj` 8/8 pass; real Telegram `Update` payload deserialization verified.
+
+---
+
 # Appendix — Issue Register
 
 Consolidated, prioritized list of every issue found. IDs referenced throughout this document.
@@ -345,13 +380,13 @@ Consolidated, prioritized list of every issue found. IDs referenced throughout t
 | ID | Sev | Status | Issue | File | Fix wave |
 |----|-----|--------|-------|------|----------|
 | S1 | 🔴 | ✅ Done | Live Instagram + Telegram tokens committed | sy_api/API/appsettings.json | 0 |
-| S2 | 🔴 | ⏳ Missing | Missing webhook secret_token verification (whitelist enforced) | TelegramController / TelegramService | 2 |
+| S2 | 🔴 | ✅ Done | Missing webhook secret_token verification (whitelist enforced) | TelegramController / TelegramService | 2 |
 | S3 | 🔴 | ✅ Done | CORS AllowAnyOrigin | sy_api/API/Program.cs | 1 |
 | B1 | 🔴 | ✅ Done | Frontend calls nonexistent `GET /instagram/posts` | Gallery.tsx ↔ InstagramController.cs | 1 |
 | B2 | 🔴 | ✅ Done | `GetPostsAsync` unreachable `NotImplementedException` | InstagramClient.cs | 1 |
 | B3 | 🔴 | ✅ Done | Webhook service call commented out | TelegramController.cs | 2 |
 | B4 | 🔴 | ✅ Done | Wrong URL template in `DownloadFile` (`GET_FILE_INFO_URL` unused) | TelegramService.cs | 2 |
-| B5 | 🔴 | ⏳ Missing | Webhook models don't match Telegram schema; no mapping | TelegramRequest.cs | 2 |
+| B5 | 🔴 | ✅ Done | Webhook models don't match Telegram schema; no mapping | TelegramRequest.cs | 2 |
 | B6 | 🔴 | ⏳ Missing | Dockerfile references `MetaAPI.csproj` (doesn't exist) | sy_api/API/Dockerfile | 6 |
 | B7 | 🟠 | ✅ Done | `AllowedUserId` read but never enforced | TelegramService.cs | 2 |
 | B8 | 🟠 | ✅ Done | Static mutable `CurrentAlbum.Name` (race conditions) | TelegramRequest.cs | 2→3 |
@@ -362,7 +397,7 @@ Consolidated, prioritized list of every issue found. IDs referenced throughout t
 | Q5 | 🟡 | ⏳ Missing | Frontend Dockerfile is dev-only | sy_website/Dockerfile | 6 |
 | Q6 | 🟡 | ⏳ Missing | `.github/workflows` empty — no CI | .github/ | 6 |
 | Q7 | 🟡 | ⏳ Missing | About section uses Unsplash placeholders | About.tsx | 1 |
-| Q8 | 🟡 | ⏳ Missing | Typo `TelegramMesssage`; namespace drift (MetaAPI/InstagramAPI/MetaService) | multiple | 2/6 |
+| Q8 | 🟡 | 🔄 In progress | Typo `TelegramMesssage` fixed → `TelegramMessage`; namespace drift (MetaAPI/InstagramAPI/MetaService) remains | multiple | 2/6 |
 | Q9 | 🟡 | ⏳ Missing | `react-router-dom` installed but unused | sy_website | 4 |
 | Q10 | 🟡 | ⏳ Missing | ~130 lines of dead commented-out code | InstagramController.cs | 5/6 |
 | Q11 | 🟡 | 🔄 In progress | No tests anywhere | — | 2+ |

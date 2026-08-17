@@ -39,8 +39,12 @@ namespace Service.Services
 
             BASE_URL = _config["Telegram:BaseUrl"] ?? string.Empty;
             ALLOWED_USER_ID = _config["Telegram:AllowedUserId"] ?? string.Empty;
-            STORAGE_PATH = _config["Telegram:PhotoStoragePath"] ?? string.Empty;
             TOKEN = _config["Telegram:BotToken"] ?? string.Empty;
+
+            var configuredStoragePath = _config["Telegram:PhotoStoragePath"];
+            STORAGE_PATH = string.IsNullOrWhiteSpace(configuredStoragePath)
+                ? Path.Combine(AppContext.BaseDirectory, "photo-storage")
+                : configuredStoragePath;
         }
         private string Format(string route, params object[] args)
             => string.Format(route, args);
@@ -49,24 +53,40 @@ namespace Service.Services
         {
             var message = update.Message;
 
+            if (message is null)
+            {
+                _logger.LogInformation("Ignoring Telegram update without a message payload");
+                return;
+            }
+
+            var fromId = message.From?.Id.ToString() ?? string.Empty;
+
             if (!string.IsNullOrWhiteSpace(ALLOWED_USER_ID) &&
-                message.MessageChatId != ALLOWED_USER_ID)
+                fromId != ALLOWED_USER_ID)
             {
                 _logger.LogWarning(
-                    "Ignoring Telegram update from unauthorized chat_id {ChatId}",
-                    message.MessageChatId);
+                    "Ignoring Telegram update from unauthorized user id {UserId}",
+                    fromId);
+                return;
+            }
+
+            var chatId = message.Chat?.Id.ToString() ?? fromId;
+
+            if (string.IsNullOrWhiteSpace(chatId))
+            {
+                _logger.LogWarning("Ignoring Telegram update without chat or sender id");
                 return;
             }
 
             // Handle commands
-            if (!string.IsNullOrEmpty(message.MessageText))
+            if (!string.IsNullOrEmpty(message.Text))
             {
-                if (message.MessageText.StartsWith("/shoot"))
+                if (message.Text.StartsWith("/shoot"))
                 {
-                    var album = message.MessageText.Replace("/shoot", "").Trim();
-                    var sanitizedAlbum = _albumStore.SetAlbum(message.MessageChatId, album);
+                    var album = message.Text.Replace("/shoot", "").Trim();
+                    var sanitizedAlbum = _albumStore.SetAlbum(chatId, album);
 
-                    await SendMessage(TOKEN, message.MessageChatId,
+                    await SendMessage(TOKEN, chatId,
                         $"📷 Album set to: {sanitizedAlbum}");
                 }
             }
@@ -79,26 +99,28 @@ namespace Service.Services
 
                 await DownloadFile(TOKEN, document.FileId,
                     safeFileName,
-                    message.MessageChatId,
+                    chatId,
                     STORAGE_PATH);
 
-                await SendMessage(TOKEN, message.MessageChatId,
+                await SendMessage(TOKEN, chatId,
                     "✅ Photo uploaded successfully.");
             }
 
             // Handle photos
             if (message.Photos != null && message.Photos.Any())
             {
-                var photo = message.Photos.Last(); // highest resolution
+                var photo = message.Photos
+                    .OrderBy(size => size.FileSize ?? 0)
+                    .Last(); // highest resolution
 
                 var fileName = $"{Guid.NewGuid()}.jpg";
 
-                await DownloadFile(TOKEN, photo,
+                await DownloadFile(TOKEN, photo.FileId,
                     fileName,
-                    message.MessageChatId,
+                    chatId,
                     STORAGE_PATH);
 
-                await SendMessage(TOKEN, message.MessageChatId,
+                await SendMessage(TOKEN, chatId,
                     "📸 Photo saved.");
             }
         }
