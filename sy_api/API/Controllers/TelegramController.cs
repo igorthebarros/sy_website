@@ -74,9 +74,15 @@ namespace API.Controllers
                 return false;
             }
 
-            return CryptographicOperations.FixedTimeEquals(
-                Encoding.UTF8.GetBytes(providedToken),
-                Encoding.UTF8.GetBytes(expectedToken));
+var providedBytes = Encoding.UTF8.GetBytes(providedToken);
+var expectedBytes = Encoding.UTF8.GetBytes(expectedToken);
+
+if (providedBytes.Length != expectedBytes.Length)
+{
+    return false;
+}
+
+return CryptographicOperations.FixedTimeEquals(providedBytes, expectedBytes);
         }
     }
 }
