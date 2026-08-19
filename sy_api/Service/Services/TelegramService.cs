@@ -96,7 +96,9 @@ namespace Service.Services
             if (!string.IsNullOrWhiteSpace(document?.FileId))
             {
                 var safeFileName = Path.GetFileName(document.FileName);
-
+                var invalidCharacters = Path.GetInvalidFileNameChars();
+                safeFileName = new string(safeFileName.Select(ch => invalidCharacters.Contains(ch) ? '_' : ch).ToArray());
+                safeFileName = string.IsNullOrWhiteSpace(safeFileName) ? $"{Guid.NewGuid()}.bin" : safeFileName;
                 await DownloadFile(TOKEN, document.FileId,
                     safeFileName,
                     chatId,
