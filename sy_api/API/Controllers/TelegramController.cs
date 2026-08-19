@@ -62,7 +62,7 @@ namespace API.Controllers
 
             if (string.IsNullOrWhiteSpace(expectedToken))
             {
-                _logger.LogWarning(
+                _logger.LogDebug(
                     "Telegram:WebhookSecretToken is not configured; webhook secret verification is disabled");
                 return true;
             }
@@ -74,15 +74,15 @@ namespace API.Controllers
                 return false;
             }
 
-var providedBytes = Encoding.UTF8.GetBytes(providedToken);
-var expectedBytes = Encoding.UTF8.GetBytes(expectedToken);
+            var providedBytes = Encoding.UTF8.GetBytes(providedToken);
+            var expectedBytes = Encoding.UTF8.GetBytes(expectedToken);
 
-if (providedBytes.Length != expectedBytes.Length)
-{
-    return false;
-}
+            if (providedBytes.Length != expectedBytes.Length)
+            {
+                return false;
+            }
 
-return CryptographicOperations.FixedTimeEquals(providedBytes, expectedBytes);
+            return CryptographicOperations.FixedTimeEquals(providedBytes, expectedBytes);
         }
     }
 }
