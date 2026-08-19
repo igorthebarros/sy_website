@@ -62,7 +62,7 @@ namespace API.Controllers
 
             if (string.IsNullOrWhiteSpace(expectedToken))
             {
-                _logger.LogWarning(
+                _logger.LogDebug(
                     "Telegram:WebhookSecretToken is not configured; webhook secret verification is disabled");
                 return true;
             }
