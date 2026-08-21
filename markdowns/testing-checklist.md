@@ -1,6 +1,6 @@
 # Testing Checklist
 
-> Last updated: 2026-08-06
+> Last updated: 2026-08-21
 > Scope: Current project testability baseline and repeatable PR validation checklist.
 
 ## Purpose
@@ -8,13 +8,14 @@
 This file is the single source of truth for testing status and routines.
 Update it every time a PR is merged so the team always knows what is tested, what is partially testable, and what is still blocked.
 
-## Current Baseline (2026-08-06)
+## Current Baseline (2026-08-21)
 
 ### Verified by execution
 
-- Backend unit tests: PASS (`dotnet test sy_api/Tests/Tests.csproj`) with 8 passed tests.
+- Backend unit tests: PASS (`dotnet test sy_api/Tests/Tests.csproj`) with 11 passed tests.
 - Frontend production build: PASS (`npm run build` in `sy_website`).
 - API runtime smoke (Development): PASS (`GET /swagger/v1/swagger.json` returned 200).
+- Telegram webhook smoke: PASS (`POST /api/telegram/webhook` with a minimal `update_id` payload returned 200).
 
 ### Testable now
 

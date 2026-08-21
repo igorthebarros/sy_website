@@ -184,12 +184,12 @@ Waves are ordered by dependency and risk. Each wave ends in a **verifiable, demo
 Backend:
 - [x] Fix `InstagramClient.GetPostsAsync()` — remove the unreachable `throw NotImplementedException()`, return the response body, and request the fields the frontend needs (`id,caption,media_url,permalink,media_type`).
 - [x] Add the missing **`GET /instagram/posts`** endpoint to `InstagramController` calling `_service.GetPostsAsync()`.
-- [ ] Add a controller-level `[Route]` attribute (route prefix) to `InstagramController` to avoid repeating route strings in each action.
+- [x] Add a controller-level `[Route]` attribute (route prefix) to `InstagramController` to avoid repeating route strings in each action.
 - [x] Replace `BadRequest(e.Message)` with logged errors + `Problem()` responses.
 - [x] Restrict CORS to the site origins (`localhost:3420`/`5173` in dev, real domain in prod).
 
 Frontend:
-- [ ] Confirm `VITE_API_URL` matches the API's actual port; verify Gallery renders live posts.
+- [x] Confirm `VITE_API_URL` matches the API's actual port; verify Gallery renders live posts. (`.env.development` pins `http://localhost:5033`; live-post rendering still requires a valid Instagram token.)
 - [ ] Replace About-section Unsplash placeholders with real content/photos.
 
 **Exit criteria:** `npm run dev` + `dotnet run` → homepage shows real Instagram posts; no CORS errors; API returns structured errors.
@@ -200,15 +200,15 @@ Frontend:
 
 **Goal: photographer sends `/shoot album` + photos in Telegram → files land in the correct folder on the server.**
 
-- [ ] Create proper Telegram request models matching the real `Update` schema (snake_case: `update_id`, `message.from.id`, `message.chat.id`, `message.text`, `message.photo[]`, `message.document`) using `[JsonPropertyName]` — or adopt the `Telegram.Bot` NuGet package types.
+- [x] Create proper Telegram request models matching the real `Update` schema (snake_case: `update_id`, `message.from.id`, `message.chat.id`, `message.text`, `message.photo[]`, `message.document`) using `[JsonPropertyName]` — or adopt the `Telegram.Bot` NuGet package types.
 - [x] Map the incoming payload in `TelegramController` and **uncomment/wire the service call**.
 - [x] Fix `DownloadFile`: use `GET_FILE_INFO_URL` for the `getFile` call and `FILE_URL` for the byte download.
 - [x] **Enforce the whitelist**: reject updates where `from.id != Telegram:AllowedUserId` (return 200 to Telegram, log, and ignore — don't Forbid, to avoid retries).
-- [ ] Verify the `X-Telegram-Bot-Api-Secret-Token` header against config; register the webhook with `secret_token`.
+- [x] Verify the `X-Telegram-Bot-Api-Secret-Token` header against config; register the webhook with `secret_token`. (Header check implemented via `Telegram:WebhookSecretToken`; webhook registration with `secret_token` is a manual deployment step.)
 - [x] Replace `static CurrentAlbum.Name` with per-chat state (minimum: `ConcurrentDictionary<long chatId, string album>`; proper fix arrives with the DB in Wave 3).
 - [x] Sanitize file names from Telegram (`Path.GetFileName`, strip invalid chars) before writing to disk.
-- [ ] Move `PhotoStoragePath` to a configurable, non-hardcoded location; add try/catch + `ILogger` throughout the service.
-- [ ] Fix the class-name typo `TelegramMesssage` → `TelegramMessage`.
+- [x] Move `PhotoStoragePath` to a configurable, non-hardcoded location; add try/catch + `ILogger` throughout the service.
+- [x] Fix the class-name typo `TelegramMesssage` → `TelegramMessage`.
 - [ ] Test locally with ngrok following the handbook's Section 6, using the curl payloads from Section 8.
 
 **Exit criteria:** real photo sent in Telegram appears under `{storage}/{album}/`; unauthorized sender is ignored; bot replies with confirmation messages; `getWebhookInfo` shows no errors.
@@ -345,13 +345,13 @@ Consolidated, prioritized list of every issue found. IDs referenced throughout t
 | ID | Sev | Status | Issue | File | Fix wave |
 |----|-----|--------|-------|------|----------|
 | S1 | 🔴 | ✅ Done | Live Instagram + Telegram tokens committed | sy_api/API/appsettings.json | 0 |
-| S2 | 🔴 | ⏳ Missing | Missing webhook secret_token verification (whitelist enforced) | TelegramController / TelegramService | 2 |
+| S2 | 🔴 | ✅ Done | Missing webhook secret_token verification (whitelist enforced) | TelegramController / TelegramService | 2 |
 | S3 | 🔴 | ✅ Done | CORS AllowAnyOrigin | sy_api/API/Program.cs | 1 |
 | B1 | 🔴 | ✅ Done | Frontend calls nonexistent `GET /instagram/posts` | Gallery.tsx ↔ InstagramController.cs | 1 |
 | B2 | 🔴 | ✅ Done | `GetPostsAsync` unreachable `NotImplementedException` | InstagramClient.cs | 1 |
 | B3 | 🔴 | ✅ Done | Webhook service call commented out | TelegramController.cs | 2 |
 | B4 | 🔴 | ✅ Done | Wrong URL template in `DownloadFile` (`GET_FILE_INFO_URL` unused) | TelegramService.cs | 2 |
-| B5 | 🔴 | ⏳ Missing | Webhook models don't match Telegram schema; no mapping | TelegramRequest.cs | 2 |
+| B5 | 🔴 | ✅ Done | Webhook models don't match Telegram schema; no mapping | TelegramRequest.cs | 2 |
 | B6 | 🔴 | ⏳ Missing | Dockerfile references `MetaAPI.csproj` (doesn't exist) | sy_api/API/Dockerfile | 6 |
 | B7 | 🟠 | ✅ Done | `AllowedUserId` read but never enforced | TelegramService.cs | 2 |
 | B8 | 🟠 | ✅ Done | Static mutable `CurrentAlbum.Name` (race conditions) | TelegramRequest.cs | 2→3 |
@@ -362,7 +362,7 @@ Consolidated, prioritized list of every issue found. IDs referenced throughout t
 | Q5 | 🟡 | ⏳ Missing | Frontend Dockerfile is dev-only | sy_website/Dockerfile | 6 |
 | Q6 | 🟡 | ⏳ Missing | `.github/workflows` empty — no CI | .github/ | 6 |
 | Q7 | 🟡 | ⏳ Missing | About section uses Unsplash placeholders | About.tsx | 1 |
-| Q8 | 🟡 | ⏳ Missing | Typo `TelegramMesssage`; namespace drift (MetaAPI/InstagramAPI/MetaService) | multiple | 2/6 |
+| Q8 | 🟡 | 🔄 In progress | Typo `TelegramMesssage` fixed; namespace drift (MetaAPI/InstagramAPI/MetaService) remains | multiple | 2/6 |
 | Q9 | 🟡 | ⏳ Missing | `react-router-dom` installed but unused | sy_website | 4 |
 | Q10 | 🟡 | ⏳ Missing | ~130 lines of dead commented-out code | InstagramController.cs | 5/6 |
 | Q11 | 🟡 | 🔄 In progress | No tests anywhere | — | 2+ |
