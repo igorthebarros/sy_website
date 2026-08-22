@@ -30,19 +30,26 @@ namespace API.Controllers
         {
             var expectedSecretToken = _config["Telegram:WebhookSecretToken"];
 
-            if (!string.IsNullOrWhiteSpace(expectedSecretToken))
+            if (string.IsNullOrWhiteSpace(expectedSecretToken))
             {
-                var providedSecretToken = Request.Headers[SecretTokenHeader].ToString();
+                _logger.LogWarning(
+                    "Telegram webhook called but {ConfigKey} is not configured; rejecting request",
+                    "Telegram:WebhookSecretToken");
 
-                if (providedSecretToken != expectedSecretToken)
-                {
-                    _logger.LogWarning(
-                        "Ignoring Telegram webhook call with a missing or invalid {Header} header",
-                        SecretTokenHeader);
+                // Return 200 so Telegram does not keep retrying the update.
+                return Ok();
+            }
 
-                    // Return 200 so Telegram does not keep retrying the update.
-                    return Ok();
-                }
+            var providedSecretToken = Request.Headers[SecretTokenHeader].ToString();
+
+            if (providedSecretToken != expectedSecretToken)
+            {
+                _logger.LogWarning(
+                    "Ignoring Telegram webhook call with a missing or invalid {Header} header",
+                    SecretTokenHeader);
+
+                // Return 200 so Telegram does not keep retrying the update.
+                return Ok();
             }
 
             try

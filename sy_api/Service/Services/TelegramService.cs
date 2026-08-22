@@ -96,6 +96,7 @@ namespace Service.Services
             var document = message.Document;
             if (!string.IsNullOrWhiteSpace(document?.FileId))
             {
+                var savedDocument = false;
                 try
                 {
                     var safeFileName = SanitizeFileName(document.FileName);
@@ -105,17 +106,28 @@ namespace Service.Services
                         chatId,
                         STORAGE_PATH);
 
-                    await SendMessage(TOKEN, chatId,
-                        "✅ Photo uploaded successfully.");
+                    savedDocument = true;
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e,
                         "Failed to download Telegram document {FileId} for chat {ChatId}",
                         document.FileId, chatId);
+                }
 
-                    await SendMessage(TOKEN, chatId,
-                        "⚠️ Failed to save the uploaded file.");
+                try
+                {
+                    var reply = savedDocument
+                        ? "✅ Photo uploaded successfully."
+                        : "⚠️ Failed to save the uploaded file.";
+
+                    await SendMessage(TOKEN, chatId, reply);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e,
+                        "Failed to send Telegram reply for document {FileId} to chat {ChatId}",
+                        document.FileId, chatId);
                 }
             }
 
@@ -124,6 +136,7 @@ namespace Service.Services
             {
                 var photo = message.Photo.Last(); // highest resolution
 
+                var savedPhoto = false;
                 try
                 {
                     var fileName = $"{Guid.NewGuid()}.jpg";
@@ -133,17 +146,28 @@ namespace Service.Services
                         chatId,
                         STORAGE_PATH);
 
-                    await SendMessage(TOKEN, chatId,
-                        "📸 Photo saved.");
+                    savedPhoto = true;
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e,
                         "Failed to download Telegram photo {FileId} for chat {ChatId}",
                         photo.FileId, chatId);
+                }
 
-                    await SendMessage(TOKEN, chatId,
-                        "⚠️ Failed to save the photo.");
+                try
+                {
+                    var reply = savedPhoto
+                        ? "📸 Photo saved."
+                        : "⚠️ Failed to save the photo.";
+
+                    await SendMessage(TOKEN, chatId, reply);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e,
+                        "Failed to send Telegram reply for photo {FileId} to chat {ChatId}",
+                        photo.FileId, chatId);
                 }
             }
         }

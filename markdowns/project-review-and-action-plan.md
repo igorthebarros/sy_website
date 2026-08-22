@@ -189,7 +189,7 @@ Backend:
 - [x] Restrict CORS to the site origins (`localhost:3420`/`5173` in dev, real domain in prod).
 
 Frontend:
-- [x] Confirm `VITE_API_URL` matches the API's actual port; verify Gallery renders live posts. (`.env.development` pins `http://localhost:5033`; live-post rendering still requires a valid Instagram token.)
+- [ ] Confirm `VITE_API_URL` matches the API's actual port; verify Gallery renders live posts. (`.env.development` pins `http://localhost:5033` locally but is excluded by `.gitignore`; live-post rendering still requires a valid Instagram token.)
 - [ ] Replace About-section Unsplash placeholders with real content/photos.
 
 **Exit criteria:** `npm run dev` + `dotnet run` → homepage shows real Instagram posts; no CORS errors; API returns structured errors.
@@ -204,7 +204,8 @@ Frontend:
 - [x] Map the incoming payload in `TelegramController` and **uncomment/wire the service call**.
 - [x] Fix `DownloadFile`: use `GET_FILE_INFO_URL` for the `getFile` call and `FILE_URL` for the byte download.
 - [x] **Enforce the whitelist**: reject updates where `from.id != Telegram:AllowedUserId` (return 200 to Telegram, log, and ignore — don't Forbid, to avoid retries).
-- [x] Verify the `X-Telegram-Bot-Api-Secret-Token` header against config; register the webhook with `secret_token`. (Header check implemented via `Telegram:WebhookSecretToken`; webhook registration with `secret_token` is a manual deployment step.)
+- [x] Verify the `X-Telegram-Bot-Api-Secret-Token` header against config; register the webhook with `secret_token`. (Header check implemented via `Telegram:WebhookSecretToken`; webhook registration with `secret_token` is a manual deployment step — **not yet done**.)
+- [ ] Register `setWebhook` with `secret_token` on production deployment.
 - [x] Replace `static CurrentAlbum.Name` with per-chat state (minimum: `ConcurrentDictionary<long chatId, string album>`; proper fix arrives with the DB in Wave 3).
 - [x] Sanitize file names from Telegram (`Path.GetFileName`, strip invalid chars) before writing to disk.
 - [x] Move `PhotoStoragePath` to a configurable, non-hardcoded location; add try/catch + `ILogger` throughout the service.
