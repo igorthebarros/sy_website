@@ -339,6 +339,41 @@ After every merged PR, update both files below:
 
 ---
 
+# Status Review — 2026-08-17 (branch & wave completion audit)
+
+## Branch status
+
+| Branch | Status |
+|---|---|
+| `develop` | Up to date; contains all wave work to date |
+| `main` | Content-identical to `develop` (PR #4 squash-merged, then main merged back); everything is shipped |
+| `wave-1-backend` | Fully merged into `develop` (merge-base = tip); stale — flagged for deletion |
+
+## Wave completion at time of review
+
+| Wave | Progress | Notes |
+|---|---|---|
+| Wave 0 — Security Triage | ✅ 5/5 (100%) | Secrets stripped, user-secrets documented |
+| Wave 1 — Instagram read path | 🟡 ~57% → route prefix now done | Remaining: `VITE_API_URL` end-to-end verification; About-section Unsplash placeholders |
+| Wave 2 — Telegram webhook MVP | 🟡 50% → 9/10 after this review's fixes | Remaining: local end-to-end test with ngrok + webhook registration with `secret_token` |
+| Wave 3 — Persistence & Album API | ⏳ 0% | Not started |
+| Wave 4 — Frontend Albums | ⏳ 0% | `react-router-dom` installed but unused |
+| Wave 5 — Instagram write path (optional) | ⏳ 0% | POST endpoints still stubs |
+| Wave 6 — Hardening/CI/CD | ⏳ 0% | Dockerfile still broken (`MetaAPI` ref); no CI workflows |
+
+## Issues found during review → fixes applied
+
+1. **S2 (🔴):** webhook did not verify `X-Telegram-Bot-Api-Secret-Token` — **fixed**: constant-time comparison against `Telegram:WebhookSecretToken`; requests with an invalid token get 401. Webhook must be re-registered with `secret_token` once deployed.
+2. **B5 (🔴):** `TelegramRequest` models did not match Telegram's snake_case `Update` schema, so real payloads would not deserialize — **fixed**: proper `[JsonPropertyName]` models (`update_id`, `message.from.id`, `message.chat.id`, `message.text`, `message.photo[]`, `message.document`), including `getFile` response (`result.file_path`). Whitelist now checks `from.id` per plan; highest-resolution photo selected by `file_size`.
+3. **Hardcoded Windows path:** `PhotoStoragePath` defaulted to `C:\photo-storage` — **fixed**: empty by default with a cross-platform fallback (`{app}/photo-storage`).
+4. **Q8 typo:** `TelegramMesssage` → `TelegramMessage` — **fixed** (namespace drift still pending, Wave 6).
+5. **Wave 1 route prefix:** controller-level `[Route("instagram")]` added to `InstagramController`; public URLs unchanged.
+6. **Stale branch:** `wave-1-backend` is fully merged — delete it (`git push origin --delete wave-1-backend`).
+
+Validation: `dotnet build sy_api/sy_api.slnx` clean; `dotnet test sy_api/Tests/Tests.csproj` 8/8 pass; real Telegram `Update` payload deserialization verified.
+
+---
+
 # Appendix — Issue Register
 
 Consolidated, prioritized list of every issue found. IDs referenced throughout this document.

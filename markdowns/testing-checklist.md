@@ -17,6 +17,7 @@ Update it every time a PR is merged so the team always knows what is tested, wha
 - API runtime smoke (Development): PASS (`GET /swagger/v1/swagger.json` returned 200).
 - Telegram webhook smoke: PASS (`POST /api/telegram/webhook` with a minimal `update_id` payload returned 200).
 
+
 ### Testable now
 
 - Backend unit tests in `sy_api/Tests`.
