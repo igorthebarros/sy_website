@@ -107,7 +107,7 @@ The **vision is well-written and coherent**; the codebase is an early proof-of-c
 |---|---|---|
 | Layout (Navbar, Hero, About, Gallery, Footer) | ✅ Done | Single-page, Framer Motion animations, cohesive dark/gold design |
 | Gallery + lightbox | ✅ Done | `react-photo-view`, loading/error states, video filtering, 12-post cap |
-| API service layer | ✅ Done | [InstagramService.tsx](../sy_website/src/services/InstagramService.tsx) with `VITE_API_URL` env config |
+| API service layer | 🟡 Partial | [InstagramService.tsx](../sy_website/src/services/InstagramService.tsx) reads `VITE_API_URL`; `.env.development` pins the value locally but is excluded by `.gitignore`, so `VITE_API_URL` is undefined on a fresh checkout |
 | **API contract** | 🔴 **Broken** | Frontend calls `GET /instagram/posts` — backend has no such route |
 | About section | 🟡 Placeholder | Unsplash stock images, generic bio |
 | Telegram albums UI | 🔴 0% | No model, service, or component |
