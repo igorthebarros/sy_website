@@ -29,7 +29,8 @@ namespace Infrastructure.Telegram
 
         public async Task PostAsync(string url, HttpContent content)
         {
-            await _httpClient.PostAsync(url, content);
+            var response = await _httpClient.PostAsync(url, content);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task<byte[]> GetByteArrayAsync(string url)
