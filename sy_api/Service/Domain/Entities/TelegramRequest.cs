@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Service.Domain.Entities
 {
+    // Models matching the real Telegram Bot API Update schema (snake_case).
     public class TelegramRequest
     {
         [JsonPropertyName("update_id")]
@@ -26,7 +27,7 @@ namespace Service.Domain.Entities
         public string? Text { get; set; }
 
         [JsonPropertyName("photo")]
-        public IList<TelegramPhotoSize>? Photos { get; set; }
+        public IList<TelegramPhotoSize>? Photo { get; set; }
 
         [JsonPropertyName("document")]
         public TelegramDocument? Document { get; set; }
@@ -49,23 +50,11 @@ namespace Service.Domain.Entities
         [JsonPropertyName("file_id")]
         public string FileId { get; set; } = string.Empty;
 
-        [JsonPropertyName("file_size")]
-        public long? FileSize { get; set; }
-    }
+        [JsonPropertyName("width")]
+        public int Width { get; set; }
 
-    public class TelegramFileResponse
-    {
-        [JsonPropertyName("ok")]
-        public bool Ok { get; set; }
-
-        [JsonPropertyName("result")]
-        public TelegramFileResult Result { get; set; } = new TelegramFileResult();
-    }
-
-    public class TelegramFileResult
-    {
-        [JsonPropertyName("file_path")]
-        public string FilePath { get; set; } = string.Empty;
+        [JsonPropertyName("height")]
+        public int Height { get; set; }
     }
 
     public class TelegramDocument
@@ -75,5 +64,17 @@ namespace Service.Domain.Entities
 
         [JsonPropertyName("file_name")]
         public string FileName { get; set; } = string.Empty;
+    }
+
+    public class TelegramFileResponse
+    {
+        [JsonPropertyName("result")]
+        public TelegramFileResult Result { get; set; } = new TelegramFileResult();
+    }
+
+    public class TelegramFileResult
+    {
+        [JsonPropertyName("file_path")]
+        public string FilePath { get; set; } = string.Empty;
     }
 }

@@ -107,7 +107,7 @@ The **vision is well-written and coherent**; the codebase is an early proof-of-c
 |---|---|---|
 | Layout (Navbar, Hero, About, Gallery, Footer) | ✅ Done | Single-page, Framer Motion animations, cohesive dark/gold design |
 | Gallery + lightbox | ✅ Done | `react-photo-view`, loading/error states, video filtering, 12-post cap |
-| API service layer | ✅ Done | [InstagramService.tsx](../sy_website/src/services/InstagramService.tsx) with `VITE_API_URL` env config |
+| API service layer | 🟡 Partial | [InstagramService.tsx](../sy_website/src/services/InstagramService.tsx) reads `VITE_API_URL`; `.env.development` pins the value locally but is excluded by `.gitignore`, so `VITE_API_URL` is undefined on a fresh checkout |
 | **API contract** | 🔴 **Broken** | Frontend calls `GET /instagram/posts` — backend has no such route |
 | About section | 🟡 Placeholder | Unsplash stock images, generic bio |
 | Telegram albums UI | 🔴 0% | No model, service, or component |
@@ -189,7 +189,7 @@ Backend:
 - [x] Restrict CORS to the site origins (`localhost:3420`/`5173` in dev, real domain in prod).
 
 Frontend:
-- [ ] Confirm `VITE_API_URL` matches the API's actual port; verify Gallery renders live posts.
+- [ ] Confirm `VITE_API_URL` matches the API's actual port; verify Gallery renders live posts. (`.env.development` pins `http://localhost:5033` locally but is excluded by `.gitignore`; live-post rendering still requires a valid Instagram token.)
 - [ ] Replace About-section Unsplash placeholders with real content/photos.
 
 **Exit criteria:** `npm run dev` + `dotnet run` → homepage shows real Instagram posts; no CORS errors; API returns structured errors.
@@ -204,10 +204,11 @@ Frontend:
 - [x] Map the incoming payload in `TelegramController` and **uncomment/wire the service call**.
 - [x] Fix `DownloadFile`: use `GET_FILE_INFO_URL` for the `getFile` call and `FILE_URL` for the byte download.
 - [x] **Enforce the whitelist**: reject updates where `from.id != Telegram:AllowedUserId` (return 200 to Telegram, log, and ignore — don't Forbid, to avoid retries).
-- [x] Verify the `X-Telegram-Bot-Api-Secret-Token` header against config (`Telegram:WebhookSecretToken`); register the webhook with `secret_token` (registration step pending deployment).
+- [x] Verify the `X-Telegram-Bot-Api-Secret-Token` header against config; register the webhook with `secret_token`. (Header check implemented via `Telegram:WebhookSecretToken`; webhook registration with `secret_token` is a manual deployment step — **not yet done**.)
+- [ ] Register `setWebhook` with `secret_token` on production deployment.
 - [x] Replace `static CurrentAlbum.Name` with per-chat state (minimum: `ConcurrentDictionary<long chatId, string album>`; proper fix arrives with the DB in Wave 3).
 - [x] Sanitize file names from Telegram (`Path.GetFileName`, strip invalid chars) before writing to disk.
-- [x] Move `PhotoStoragePath` to a configurable, non-hardcoded location (config value with cross-platform fallback to `{app}/photo-storage`); add try/catch + `ILogger` throughout the service (structured logging pass continues in Wave 6).
+- [x] Move `PhotoStoragePath` to a configurable, non-hardcoded location; add try/catch + `ILogger` throughout the service.
 - [x] Fix the class-name typo `TelegramMesssage` → `TelegramMessage`.
 - [ ] Test locally with ngrok following the handbook's Section 6, using the curl payloads from Section 8.
 
@@ -397,7 +398,7 @@ Consolidated, prioritized list of every issue found. IDs referenced throughout t
 | Q5 | 🟡 | ⏳ Missing | Frontend Dockerfile is dev-only | sy_website/Dockerfile | 6 |
 | Q6 | 🟡 | ⏳ Missing | `.github/workflows` empty — no CI | .github/ | 6 |
 | Q7 | 🟡 | ⏳ Missing | About section uses Unsplash placeholders | About.tsx | 1 |
-| Q8 | 🟡 | 🔄 In progress | Typo `TelegramMesssage` fixed → `TelegramMessage`; namespace drift (MetaAPI/InstagramAPI/MetaService) remains | multiple | 2/6 |
+| Q8 | 🟡 | 🔄 In progress | Typo `TelegramMesssage` fixed; namespace drift (MetaAPI/InstagramAPI/MetaService) remains | multiple | 2/6 |
 | Q9 | 🟡 | ⏳ Missing | `react-router-dom` installed but unused | sy_website | 4 |
 | Q10 | 🟡 | ⏳ Missing | ~130 lines of dead commented-out code | InstagramController.cs | 5/6 |
 | Q11 | 🟡 | 🔄 In progress | No tests anywhere | — | 2+ |

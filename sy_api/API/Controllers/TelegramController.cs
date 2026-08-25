@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Service.Domain.Entities;
@@ -30,10 +28,27 @@ namespace API.Controllers
         [HttpPost("webhook")]
         public async Task<IActionResult> Webhook([FromBody] JsonElement dto)
         {
-            if (!IsSecretTokenValid())
+            var expectedSecretToken = _config["Telegram:WebhookSecretToken"];
+
+            if (string.IsNullOrWhiteSpace(expectedSecretToken))
             {
-                _logger.LogWarning("Rejected Telegram webhook call with missing or invalid secret token");
+                _logger.LogError(
+                    "{ConfigKey} is not configured; all webhook requests will be rejected",
+                    "Telegram:WebhookSecretToken");
+
                 return Unauthorized();
+            }
+
+            var providedSecretToken = Request.Headers[SecretTokenHeader].ToString();
+
+            if (providedSecretToken != expectedSecretToken)
+            {
+                _logger.LogWarning(
+                    "Ignoring Telegram webhook call with a missing or invalid {Header} header",
+                    SecretTokenHeader);
+
+                // Return 200 so Telegram does not keep retrying the update.
+                return Ok();
             }
 
             try
@@ -54,35 +69,6 @@ namespace API.Controllers
                 _logger.LogError(e, "Error processing Telegram webhook");
                 return Problem(title: "Telegram webhook processing failed.");
             }
-        }
-
-        private bool IsSecretTokenValid()
-        {
-            var expectedToken = _config["Telegram:WebhookSecretToken"];
-
-            if (string.IsNullOrWhiteSpace(expectedToken))
-            {
-                _logger.LogDebug(
-                    "Telegram:WebhookSecretToken is not configured; webhook secret verification is disabled");
-                return true;
-            }
-
-            var providedToken = Request.Headers[SecretTokenHeader].ToString();
-
-            if (string.IsNullOrEmpty(providedToken))
-            {
-                return false;
-            }
-
-            var providedBytes = Encoding.UTF8.GetBytes(providedToken);
-            var expectedBytes = Encoding.UTF8.GetBytes(expectedToken);
-
-            if (providedBytes.Length != expectedBytes.Length)
-            {
-                return false;
-            }
-
-            return CryptographicOperations.FixedTimeEquals(providedBytes, expectedBytes);
         }
     }
 }

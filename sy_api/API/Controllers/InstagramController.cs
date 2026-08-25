@@ -42,7 +42,7 @@ namespace MetaAPI.Controllers
             }
         }
 
-        [HttpGet("")]
+        [HttpGet]
         public async Task<IActionResult> GetInstagramAccount()
         {
             try
