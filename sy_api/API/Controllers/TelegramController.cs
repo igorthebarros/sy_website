@@ -32,12 +32,11 @@ namespace API.Controllers
 
             if (string.IsNullOrWhiteSpace(expectedSecretToken))
             {
-                _logger.LogWarning(
-                    "Telegram webhook called but {ConfigKey} is not configured; rejecting request",
+                _logger.LogError(
+                    "{ConfigKey} is not configured; all webhook requests will be rejected",
                     "Telegram:WebhookSecretToken");
 
-                // Return 200 so Telegram does not keep retrying the update.
-                return Ok();
+                return Unauthorized();
             }
 
             var providedSecretToken = Request.Headers[SecretTokenHeader].ToString();
