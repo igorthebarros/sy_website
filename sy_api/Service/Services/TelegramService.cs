@@ -61,7 +61,7 @@ namespace Service.Services
             var fromId = message.From?.Id.ToString() ?? string.Empty;
             var chatId = message.Chat?.Id.ToString() ?? string.Empty;
 
-            if (!string.IsNullOrWhiteSpace(ALLOWED_USER_ID) &&
+            if (string.IsNullOrWhiteSpace(ALLOWED_USER_ID) ||
                 fromId != ALLOWED_USER_ID)
             {
                 _logger.LogWarning(
