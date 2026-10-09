@@ -1,6 +1,6 @@
 # Testing Checklist
 
-> Last updated: 2026-08-21
+> Last updated: 2026-10-08
 > Scope: Current project testability baseline and repeatable PR validation checklist.
 
 ## Purpose
@@ -35,6 +35,26 @@ Update it every time a PR is merged so the team always knows what is tested, wha
 - Album persistence and album read APIs (`/api/albums`, `/api/albums/{id}/photos`).
 - Telegram albums UI on frontend.
 - Full CI/CD test gates.
+
+## Manual Local Integration Validation — 2026-10-08
+
+These results were reported and verified by the developer on their Windows machine using `develop`, real Instagram credentials, and a real Telegram bot through ngrok. The automated tests and frontend build listed in the 2026-08-21 baseline were not rerun during this session.
+
+| Check | Result |
+|---|---|
+| API starts with the HTTP profile on port 5033 | PASS |
+| Swagger `GET /instagram/posts` returns actual post data | PASS |
+| Telegram `getMe` with the existing bot token | PASS |
+| Webhook registration using ngrok HTTPS and the configured secret | PASS |
+| `/shoot test` receives the album-selection reply | PASS |
+| One regular Telegram photo receives `Photo saved.` and exists in the default output folder | PASS |
+| `Telegram:PhotoStoragePath` configured to `%LOCALAPPDATA%\SyPortfolio\photos` through User Secrets | PASS |
+| API restarted, `/shoot test` reselected, and another photo uploaded | PASS |
+| New uploaded JPG exists under `%LOCALAPPDATA%\SyPortfolio\photos\test` | PASS |
+
+Repeat the folder setup, restart, and file-presence check using the [README instructions](../README.md#local-telegram-photo-folder-windows). The album selection resets on restart; changing the base folder does not migrate earlier uploads.
+
+Still unverified in this manual session: unauthorized-user rejection, invalid webhook-secret behavior, document uploads, multiple albums, and frontend display of Instagram data. Album database persistence and displaying Telegram uploads on the site remain unimplemented. These results do not mark the entire Telegram wave complete.
 
 ## Standard PR Test Checklist
 
