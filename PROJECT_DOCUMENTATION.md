@@ -814,82 +814,77 @@ ASPNETCORE_URLS=http://+:5000
 
 ## Telegram Bot Integration
 
-### Overview
-The project includes a **Telegram Bot** integration for automated photoshoot management and uploads. This feature streamlines the workflow for photographers to share photoshoots directly from their mobile devices to the website.
+### Current Behavior
 
-### Purpose & Benefits
-- **Streamlined Sharing:** Upload photos directly via Telegram
-- **Real-time Updates:** Website gallery updates automatically
-- **Mobile Convenience:** Photographer can manage content from mobile
-- **Organization:** Automatic tagging and categorization
-- **Backup:** Telegram serves as secondary backup mechanism
+The backend receives real Telegram updates at `POST /api/telegram/webhook`. The configured user's `/shoot <album>` command selects an album for that chat, and subsequent photo uploads are downloaded into that album's folder.
 
-### Current Status
-- **In Development** (mentioned in recent commits: "Update README to include Telegram Bot integration")
-- Basic structure being established
-- Integration points being defined
+The local test on 2026-10-08 confirmed the command reply, photo-save reply, and file presence in the configured folder. Database album persistence, album read APIs, and displaying Telegram uploads on the website remain future work; a successful upload currently saves a file on disk.
 
-### Planned Architecture
-```
-Photographer → Telegram Bot → Backend Service → Instagram API
-                                     ↓
-                          Database/Media Storage
-                                     ↓
-                          Website Gallery
-```
+### Configuration
 
-### Implementation Details (Future)
+Configure these keys through User Secrets in local Development rather than committing credentials or machine-specific paths to `appsettings.json`:
 
-#### Key Components
-1. **Telegram Bot Handler**
-   - Listen for messages from authorized photographer
-   - Process media uploads (photos, videos)
-   - Validate file types and sizes
+| Key | Purpose |
+|---|---|
+| `Telegram:BotToken` | BotFather token used for Telegram API requests |
+| `Telegram:AllowedUserId` | Numeric Telegram sender ID (`message.from.id`) authorized to use the bot |
+| `Telegram:WebhookSecretToken` | Secret matching the webhook registration's `secret_token` and incoming secret header |
+| `Telegram:PhotoStoragePath` | Base directory for downloaded files; use an absolute path |
 
-2. **Backend Integration**
-   - New endpoint: `/telegram/webhook` for Telegram callbacks
-   - New service: `TelegramBotService.cs`
-   - Authentication via Telegram token
+The API project is `sy_api/API/API.csproj`. The local HTTP launch profile uses `http://localhost:5033`. Register the webhook using the current ngrok HTTPS address followed by `/api/telegram/webhook`, with the same webhook secret configured in the API.
 
-3. **Media Processing**
-   - Save photos to storage
-   - Upload to Instagram Graph API
-   - Update website gallery
-   - Handle batch uploads
+### Local Photo Storage Outside Build Output (Windows)
 
-#### Expected Workflow
-1. Photographer sends photos to Telegram Bot
-2. Bot receives and validates media
-3. Backend processes and stores photos
-4. Photos pushed to Instagram (if desired)
-5. Website gallery auto-updates
-6. Confirmation sent back to Telegram
+Run the following in PowerShell from the **repository root**:
 
-### Configuration (Future)
-```json
-{
-  "Telegram": {
-    "BotToken": "your_bot_token",
-    "AuthorizedUserId": "photographer_user_id",
-    "FileStoragePath": "/storage/media",
-    "WebhookSecret": "secure_webhook_secret"
-  }
-}
+```powershell
+$photoStoragePath = Join-Path $env:LOCALAPPDATA "SyPortfolio\photos"
+New-Item -ItemType Directory -Path $photoStoragePath -Force | Out-Null
+dotnet user-secrets set "Telegram:PhotoStoragePath" "$photoStoragePath" --project ".\sy_api\API\API.csproj"
+Write-Host "Photo folder: $photoStoragePath"
 ```
 
-### Security Considerations
-- Validate Telegram token on webhook
-- Restrict bot access to authorized users only
-- Sanitize file uploads
-- Validate file types and sizes
-- Rate limiting on uploads
+This stores the resolved absolute path in the API's User Secrets. It applies to this development machine and must be configured separately on another machine or deployment.
+
+| Setting / album | Resulting location |
+|---|---|
+| Configured base folder | `%LOCALAPPDATA%\SyPortfolio\photos` |
+| Album selected with `/shoot test` | `%LOCALAPPDATA%\SyPortfolio\photos\test` |
+| Empty or unset `Telegram:PhotoStoragePath` | `Path.Combine(AppContext.BaseDirectory, "photo-storage")` |
+| Typical local Debug fallback | `sy_api\API\bin\Debug\net10.0\photo-storage` |
+
+`AppContext.BaseDirectory` points to the API output directory, which explains the previous location under `bin/Debug/net10.0`. Keeping photos outside that directory avoids tying uploaded files to build output. Changing the setting only changes where subsequent uploads are saved; existing files are not moved automatically.
+
+### Restart and Verify
+
+1. Stop the running API with `Ctrl+C`; leave ngrok running.
+2. Restart the API from the repository root using the already-built output:
+
+```powershell
+dotnet run --no-build --project ".\sy_api\API\API.csproj" --launch-profile http
+```
+
+A storage configuration change alone does not require a rebuild. Omit `--no-build` if the API has not been built or source code has changed.
+
+3. In the bot chat, send `/shoot test` again and wait for `📷 Album set to: test`. Album selection is stored in memory per chat and resets when the API restarts; without a selection, the folder is `default`.
+4. Send one regular photo. The expected successful reply is `📸 Photo saved.`.
+5. Open the album folder and confirm the new JPG exists:
+
+```powershell
+explorer (Join-Path $env:LOCALAPPDATA "SyPortfolio\photos\test")
+```
+
+Regular photos receive a generated GUID filename with a `.jpg` extension. The API creates the album subfolder when saving. If the expected file is missing, inspect the API log entry `Saved Telegram file {FileName} to album path {AlbumPath}` for the actual destination.
+
+The [manual local integration record](markdowns/testing-checklist.md#manual-local-integration-validation--2026-10-08) separates this verified upload from the remaining integration checks.
 
 ### Future Enhancements
-- Batch upload with progress tracking
-- Caption and metadata from Telegram messages
-- Photo organizing by event/date
-- Archive management
-- Hashtag extraction for Instagram
+
+- Persistent album metadata and album read APIs
+- Website gallery integration for Telegram uploads
+- Batch upload tracking and metadata handling
+- Optional publishing to Instagram
+- Additional validation and operational hardening
 
 ---
 
